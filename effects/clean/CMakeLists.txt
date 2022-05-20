@@ -8,7 +8,17 @@
 # @author: qawse3dr a.k.a Larry Milne
 #
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/effects)
-# Effects
-add_subdirectory(clean)
+add_library(cppedal-effect-clean SHARED
+  clean.cpp
+)
+
+target_include_directories(cppedal-effect-clean PUBLIC 
+  ../include 
+)
+
+target_link_libraries(
+  cppedal-effect-clean
+INTERFACE
+  json
+)
 

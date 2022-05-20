@@ -1,0 +1,114 @@
+{
+  // INPUT
+  "ingestor": {
+    "name": "mcp3002",
+    "path": "lib/ingestors/libcppedal-ingestor-mcp3002.so"
+  },
+  // OUTPUT
+  "pwm_output": {
+    "name": "rpi",
+    "path": "lib/pwm-output/libcppedal-pwm-output-rpi.so"
+  },
+
+  // EFFECTS
+  "effect_libraries": [
+    {
+      "name": "clean",
+      "path": "lib/effects/libcppedal-effect-clean.so"
+    }
+  ],
+  "inputs" : [
+    // PUSH BUTTONS
+    {
+      "name": "push_left",
+      "type": "push_button",
+      "type_data" {
+        "input_gpio": 23,
+        "pull_up": false // Might be true TODO
+      }
+    },
+    {
+      "name": "push_middle",
+      "type": "push_button",
+      "type_data" {
+        "input_gpio": 29,
+        "pull_up": false // Might be true TODO
+      }
+    },
+    {
+      "name": "push_right",
+      "type": "push_button",
+      "type_data" {
+        "input_gpio": 6,
+        "pull_up": false // Might be true TODO
+      }
+    },
+
+    // ROTARY ENCODERS
+    {
+      "name": "rotary_left",
+      "type": "rotary_encoder",
+      "type_data" {
+        "data_gpio": 24,
+        "clk_gpio": 25,
+        "pull_up": false // Might be true TODO
+      }
+    },
+    {
+      "name": "rotary_middle",
+      "type": "rotary_encoder",
+      "type_data" {
+        "data_gpio": 28,
+        "clk_gpio": 27,
+        "pull_up": false // Might be true TODO
+      }
+    },
+    {
+      "name": "rotary_right",
+      "type": "rotary_encoder",
+      "type_data" {
+        "data_gpio": 5,
+        "clk_gpio": 4,
+        "pull_up": false // Might be true TODO
+      }
+    }
+  ],
+
+  "effects": [
+    {
+      "name": "clean",
+      "effect-order": [
+        {
+          "effect": "clean"
+          "inputs": [] // No inputs for clean
+        }
+      ]
+    },
+    /*
+    {
+      "name": "dist",
+      "effect-order": [
+        {
+          "effect": "dist"
+          "inputs": [
+            {
+              "name": "dist_level",
+              "type": "rotary_encoder",
+              "input": "rotary_left"
+            }
+          ]
+        }
+      ]
+    }
+    */
+
+  ],
+
+  // SUSSY BUTTONS
+  "prev-effect-button": "left_button",
+  "next-effect-button": "right_button"
+
+
+
+
+}

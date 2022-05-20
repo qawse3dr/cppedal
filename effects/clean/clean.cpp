@@ -8,3 +8,18 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+
+#include "clean.hpp"
+
+using cppedal::effects::CleanEffect;
+
+int64_t  CleanEffect::process(int64_t in) {
+  // Do nothing this is a clean effect
+  return in;
+}
+
+extern "C" {
+  cppedal::effects::Effect* makeEffect() {
+    return new CleanEffect
+  }
+}

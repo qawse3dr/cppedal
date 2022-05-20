@@ -18,8 +18,10 @@ add_subdirectory(effects)
 add_subdirectory(framer)
 add_subdirectory(pwm-output)
 add_subdirectory(ingestors)
+add_subdirectory(input)
+
 
 # nlohmann JSON https://github.com/nlohmann/json
-add_library(json INTERFACE)
-target_include_directories(json INTERFACE third-party/json)
+add_library(json INTERFACE )
+target_include_directories(json INTERFACE third-party/json/)
 
