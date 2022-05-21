@@ -20,6 +20,8 @@ set(CPPEDAL_JSON_HEADER_PATH ${CMAKE_SOURCE_DIR}/third-party/json)
 # add_library(json INTERFACE )
 # target_include_directories(json INTERFACE third-party/json/)
 
+set(CMAKE_CXX_FLAGS "-Wno-psabi -Wall")
+
 add_subdirectory(effects)
 add_subdirectory(framer)
 add_subdirectory(pwm-output)

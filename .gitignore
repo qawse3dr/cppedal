@@ -34,3 +34,6 @@
 # Build folder
 build
 build_*
+
+# Third party packages
+third-party

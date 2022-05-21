@@ -8,19 +8,18 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
-#pragma once 
+#pragma once
 
+#include <json.hpp>
 #include <map>
 #include <memory>
 #include <vector>
-#include <json.hpp>
 
 // Includes for components
 #include <cppedal/effect/effect_library.hpp>
-#include <cppedal/pwm_output/pwm_output.hpp>
 #include <cppedal/ingestor/ingestor.hpp>
 #include <cppedal/input/input.hpp>
-
+#include <cppedal/pwm_output/pwm_output.hpp>
 
 namespace cppedal::framer {
 
@@ -32,14 +31,16 @@ struct FramerConfig {
 
   struct InputInfo {
     std::string name;
-    cppedal::input::InputType type;
-    nlohmann::json input_data;
+    cppedal::input::InputTypes type;
+    const nlohmann::json input_data;
   };
 
   // Libraries
   LibraryInfo ingestor;
   LibraryInfo pwm_output;
   LibraryInfo lcd;
+  LibraryInfo input_library;
+
   std::vector<LibraryInfo> effects_libraries;
 
   // Inputs
@@ -47,8 +48,7 @@ struct FramerConfig {
 
   std::string prev_effect_button;
   std::string next_effect_button;
-
-}
+};
 
 /**
  * @brief This class will hold the whole project together
@@ -61,18 +61,21 @@ struct FramerConfig {
  *
  */
 class Framer {
-private:
+ private:
   // IO of sound
   std::unique_ptr<cppedal::ingestor::Ingestor> ingst_ = {};
   std::unique_ptr<cppedal::pwm_output::PwmOutput> output_ = {};
-  std::map<std::string, std::unique_ptr<cppedal::effects::EffectLibrary>> effect_map_ = {};
+  std::map<std::string, std::unique_ptr<cppedal::effects::EffectLibrary>>
+      effect_map_ = {};
 
   FramerConfig cfg_ = {};
+  std::string dumpCfg() const;
 
-  FramerConfig parserConfig(const std::string cfg_path);
+  bool parseConfig(const std::string cfg_path);
+  bool parseLibraryInfo(const std::string& name, const nlohmann::json& it,
+                        FramerConfig::LibraryInfo& info);
 
-  public: 
-  
+ public:
   explicit Framer(const std::string& cfg_path);
   ~Framer() = default;
 
@@ -81,4 +84,4 @@ private:
   void stop();
 };
 
-} // namespace cppedal::framer
+}  // namespace cppedal::framer

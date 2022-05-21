@@ -16,5 +16,5 @@
 int main(int argc, char *argv[]) {
   std::cout << "Larrycloud CPPEDAL" << std::endl;
 
-  cppedal::framer::Framer framer("path");
+  cppedal::framer::Framer framer("../cppedal.json");
 }

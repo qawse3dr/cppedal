@@ -14,7 +14,13 @@
   "lcd": {
     "name": "1602_LCD",
     "path": "lib/lcd/libcppedal-lcd-1602.so"
-  }
+  },
+
+  // INPUT LIB
+  "input_library": {
+    "name": "rpi",
+    "path": "lib/lcd/libcppedal-rpi-input.so"
+  },
 
   // EFFECTS
   "effect_libraries": [
@@ -89,7 +95,7 @@
           "inputs": [] // No inputs for clean
         }
       ]
-    },
+    }
     /*
     {
       "name": "dist",
