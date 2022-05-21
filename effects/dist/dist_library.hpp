@@ -18,7 +18,7 @@ namespace cppedal::effects {
 
 class DistEffectLibrary : public EffectLibrary {
  private:
-  uint32_t distortion_value;
+  uint32_t distortion_value = 100;
 
  public:
   DistEffectLibrary() = default;

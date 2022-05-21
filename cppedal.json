@@ -93,30 +93,19 @@
   "effects": [
     {
       "name": "clean",
-      "effect-order": [
-        {
-          "effect": "clean",
-          "inputs": [] // No inputs for clean
-        }
-      ]
-    }
-    /*
+      "effects": ["clean"],
+      "inputs": [] // No inputs for clean
+    },
     {
       "name": "dist",
-      "effect-order": [
+      "effects": ["dist"],
+      "inputs": [
         {
-          "effect": "dist"
-          "inputs": [
-            {
-              "name": "dist_level",
-              "type": "rotary_encoder",
-              "input": "rotary_left"
-            }
-          ]
+          "name": "dist_level",
+          "input": "rotary_left"
         }
       ]
     }
-    */
 
   ],
 
