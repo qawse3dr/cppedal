@@ -16,12 +16,12 @@ namespace cppedal::effects {
 struct EffectConfig {
   std::string name;
   std::string path;
-}
+};
 
 class Effect {
   public:
     explicit Effect(const EffectConfig& cfg);
-    virtual ~Effect() = {};
+    virtual ~Effect() = 0;
 
     /**
      * @brief Each effect will take in a int64_t input signal

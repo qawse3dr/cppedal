@@ -12,14 +12,16 @@
 #include "clean.hpp"
 
 using cppedal::effects::CleanEffect;
+using cppedal::effects::Effect;
+using cppedal::effects::EffectConfig;
+
+
 
 int64_t  CleanEffect::process(int64_t in) {
   // Do nothing this is a clean effect
   return in;
 }
 
-extern "C" {
-  cppedal::effects::Effect* makeEffect() {
-    return new CleanEffect
-  }
+Effect* makeEffect(const EffectConfig& cfg) {
+  return new CleanEffect(cfg);
 }

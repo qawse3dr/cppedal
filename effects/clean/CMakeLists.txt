@@ -8,17 +8,18 @@
 # @author: qawse3dr a.k.a Larry Milne
 #
 
-add_library(cppedal-effect-clean SHARED
+add_library(
+  cppedal-effect-clean
+  SHARED
   clean.cpp
 )
-
+message(${CPPEDAL_JSON_HEADER_PATH})
 target_include_directories(cppedal-effect-clean PUBLIC 
-  ../include 
+  ${CPPEDAL_JSON_HEADER_PATH}
 )
 
 target_link_libraries(
   cppedal-effect-clean
-INTERFACE
-  json
+  PUBLIC
+  cppedal-effects
 )
-

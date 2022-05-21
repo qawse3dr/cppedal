@@ -11,22 +11,9 @@
 
 #include "cppedal/effect/effect.hpp"
 
-#include <memory>
+using cppedal::effects::Effect;
+using cppedal::effects::EffectConfig;
 
-namespace cppedal::effects {
-
-class CleanEffect : public Effect {
- public:
-  CleanEffect(const EffectConfig& cfg) : Effect(cfg) {}
-
-  int64_t process(int64_t in) override;
-
-
-};
-
-// Makes the clean effect
-// All effects must have this
-Effect* makeEffect(const EffectConfig&);
-
-
-} // namespace cppedal::effects
+Effect::Effect(const EffectConfig& cfg) {
+  (void) cfg; // TODO add config stuff
+}
