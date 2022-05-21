@@ -9,11 +9,10 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include "cppedal/effect/effect.hpp"
+#include "cppedal/effect/effect_library.hpp"
 
-using cppedal::effects::Effect;
-using cppedal::effects::EffectConfig;
+using cppedal::effects::EffectLibrary;
+using cppedal::effects::EffectLibraryConfig;
 
-Effect::Effect(const EffectConfig& cfg) {
-  (void) cfg; // TODO add config stuff
+EffectLibrary::EffectLibrary(const EffectLibraryConfig& cfg): name_(cfg.name), path_(cfg.path) {
 }

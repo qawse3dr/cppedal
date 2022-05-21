@@ -9,16 +9,16 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include "cppedal/effect/effect.hpp"
+#include "cppedal/effect/effect_library.hpp"
 
 #include <memory>
 
 namespace cppedal::effects {
 
-class CleanEffect : public Effect {
+class CleanEffectLibrary : public EffectLibrary {
  public:
-  CleanEffect(const EffectConfig& cfg) : Effect(cfg) {}
-
+  explicit CleanEffectLibrary(const EffectLibraryConfig& cfg) : EffectLibrary(cfg) {}
+  ~CleanEffectLibrary();
   int64_t process(int64_t in) override;
 
 
@@ -26,7 +26,7 @@ class CleanEffect : public Effect {
 
 // Makes the clean effect
 // All effects must have this
-Effect* makeEffect(const EffectConfig&);
+std::unique_ptr<EffectLibrary> makeEffectLibrary(const EffectLibraryConfig&);
 
 
 } // namespace cppedal::effects

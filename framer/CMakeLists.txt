@@ -16,6 +16,7 @@ add_executable(cppedal
   main.cpp
 )
 
-target_link_libraries( cppedal
-  json
+target_include_directories(cppedal
+    PUBLIC
+    $(CPPEDAL_JSON_HEADER_PATH)
 )

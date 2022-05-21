@@ -11,12 +11,9 @@
 add_library(
   cppedal-effect-clean
   SHARED
-  clean.cpp
+  clean_library.cpp
 )
-message(${CPPEDAL_JSON_HEADER_PATH})
-target_include_directories(cppedal-effect-clean PUBLIC 
-  ${CPPEDAL_JSON_HEADER_PATH}
-)
+
 
 target_link_libraries(
   cppedal-effect-clean

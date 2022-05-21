@@ -13,6 +13,12 @@ project(cppedal VERSION 1.0)
 
 set (CXX_STANDARD C++20)
 
+# nlohmann JSON https://github.com/nlohmann/json
+# user var cause INTERFACE LIB is being weird
+# and don't have time to fix it
+set(CPPEDAL_JSON_HEADER_PATH ${CMAKE_SOURCE_DIR}/third-party/json)
+# add_library(json INTERFACE )
+# target_include_directories(json INTERFACE third-party/json/)
 
 add_subdirectory(effects)
 add_subdirectory(framer)
@@ -21,7 +27,4 @@ add_subdirectory(ingestors)
 add_subdirectory(input)
 
 
-# nlohmann JSON https://github.com/nlohmann/json
-add_library(json INTERFACE )
-target_include_directories(json INTERFACE third-party/json/)
 

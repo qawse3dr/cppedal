@@ -9,19 +9,3 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include "clean.hpp"
-
-using cppedal::effects::CleanEffect;
-using cppedal::effects::Effect;
-using cppedal::effects::EffectConfig;
-
-
-
-int64_t  CleanEffect::process(int64_t in) {
-  // Do nothing this is a clean effect
-  return in;
-}
-
-Effect* makeEffect(const EffectConfig& cfg) {
-  return new CleanEffect(cfg);
-}
