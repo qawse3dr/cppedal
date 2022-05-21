@@ -7,17 +7,3 @@
 #
 # @author: qawse3dr a.k.a Larry Milne
 #
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/input)
-
-# Input
-add_subdirectory(rpi)
-
-add_library(cppedal-input INTERFACE)
-
-target_include_directories(
-  cppedal-input
-  INTERFACE
-  include/
-)
-

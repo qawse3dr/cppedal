@@ -27,5 +27,6 @@ target_link_libraries(cppedal
   ingestor
   pwm-output
   cppedal-effects
+  cppedal-input
   dl
 )
