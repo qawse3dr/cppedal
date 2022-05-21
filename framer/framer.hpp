@@ -101,8 +101,10 @@ class Framer {
   bool loadOutput();  //< PWM output
   bool loadInput();
   bool loadLCD();
-
   bool loadEffectLib(FramerConfig::LibraryInfo& effect);
+
+  // Sets up all of the effects mapping them to actual libs and inputs
+  bool setupEffects();
 
   std::thread work_thread_;
   bool running_ = false;

@@ -21,40 +21,55 @@ using cppedal::framer::Framer;
 using cppedal::framer::FramerConfig;
 
 Framer::Framer(const std::string& cfg_path) {
-  if (!parseConfig(cfg_path)) {
-    std::cerr << "Failed to parse config" << std::endl;
-  } else {
-    std::cout << dumpCfg();
-  }
-
-  if (!loadIngst() || !loadOutput() || !loadInput() || !loadLCD()) {
-    std::cerr << "Failed to load shared libs" << std::endl;
-    exit(-1);
-  }
-
-  // Load Effect libs
-  for (auto& e : cfg_.effects_libraries) {
-    if (!loadEffectLib(e)) {
-      exit(-1);
+  do {
+    if (!parseConfig(cfg_path)) {
+      std::cerr << "Failed to parse config" << std::endl;
+      break;
+    } else {
+      std::cout << dumpCfg();
     }
-  }
 
-  // setup effect configs
+    if (!loadIngst() || !loadOutput() || !loadInput() || !loadLCD()) {
+      std::cerr << "Failed to load shared libs" << std::endl;
+      break;
+    }
+
+    // Load Effect libs
+    bool failed = false;
+    for (auto& e : cfg_.effects_libraries) {
+      if (!loadEffectLib(e)) {
+        failed = true;
+        break;
+      }
+    }
+    if (failed) break;
+
+    // Setup input
+
+    // setup effect configs
+    if (!setupEffects()) {
+      break;
+    }
+    cur_effect_ = effects_.begin();
+    std::cout << "CPPEDAL SETUP" << std::endl;
+    return;
+
+  } while (false);
+  std::cerr << "Failed to setup CPPEDAL" << std::endl;
+  exit(-1);
 }
 
 void Framer::workLoop() {
   uint32_t input;
-  auto effect = effect_library_map_["clean"];
   while (running_) {
     // Get input from ingestor
     input = ingst_->ingest();
 
     // Do effects
-    input = effect->process(input);
-    // {
-    //   std::lock_guard<std::mutex> lk(effect_mutex_);
-    //   input = cur_effect_->process(input);
-    // }
+    {
+      std::lock_guard<std::mutex> lk(effect_mutex_);
+      input = cur_effect_->process(input);
+    }
 
     // output to pwm
     output_->output(input);
@@ -350,6 +365,25 @@ bool Framer::loadEffectLib(FramerConfig::LibraryInfo& effect) {
   }
 
   effect_library_map_.emplace(effect.name, effect_ftn());
+  return true;
+}
+
+bool Framer::setupEffects() {
+  for (const auto& info : cfg_.effects_info) {
+    // TODO input
+    std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>> effects;
+
+    for (auto& lib : info.effect_libraries) {
+      auto lib_it = effect_library_map_.find(lib);
+      if (lib_it == effect_library_map_.end()) {
+        std::cerr << "failed to find library " << lib << " for " << info.name
+                  << std::endl;
+        return false;
+      }
+      effects.emplace_back(lib_it->second);
+    }
+    effects_.emplace_back(info.name, std::move(effects));
+  }
   return true;
 }
 

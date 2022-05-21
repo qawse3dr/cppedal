@@ -19,10 +19,13 @@
 namespace cppedal::framer {
 
 class EffectContainer {
+  std::string name_;
   std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>> effects_ = {};
 
  public:
-  EffectContainer() = default;
+  EffectContainer(
+      const std::string& name,
+      std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>>&& effects);
   ~EffectContainer() = default;
 
   /**

@@ -11,8 +11,13 @@
 
 #include "effect_container.hpp"
 
+using cppedal::effects::EffectLibrary;
 using cppedal::framer::EffectContainer;
 
+EffectContainer::EffectContainer(
+    const std::string& name,
+    std::vector<std::shared_ptr<EffectLibrary>>&& effect)
+    : name_(name), effects_(std::move(effect)) {}
 uint32_t EffectContainer::process(uint32_t in) {
   for (const auto& effect : effects_) {
     in = effect->process(in);
