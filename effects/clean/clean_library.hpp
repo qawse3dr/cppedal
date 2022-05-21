@@ -16,16 +16,15 @@
 namespace cppedal::effects {
 
 class CleanEffectLibrary : public EffectLibrary {
- public:
-  explicit CleanEffectLibrary(const EffectLibraryConfig& cfg) : EffectLibrary(cfg) {}
+public:
+  explicit CleanEffectLibrary(const EffectLibraryConfig &cfg)
+      : EffectLibrary(cfg) {}
   ~CleanEffectLibrary();
   int64_t process(int64_t in) override;
-
 };
 
 // Makes the clean effect
 // All effects must have this
-std::unique_ptr<EffectLibrary> makeEffectLibrary(const EffectLibraryConfig&);
-
+std::unique_ptr<EffectLibrary> makeEffectLibrary(const EffectLibraryConfig &);
 
 } // namespace cppedal::effects

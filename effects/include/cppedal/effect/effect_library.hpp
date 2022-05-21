@@ -9,24 +9,24 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include <string>
 #include <stdint.h>
+#include <string>
 
 namespace cppedal::effects {
-  
+
 struct EffectLibraryConfig {
   std::string name;
   std::string path;
 };
 
 class EffectLibrary {
- private:
+private:
   std::string name_;
   std::string path_;
 
- public:
-  explicit EffectLibrary(const EffectLibraryConfig& cfg);
-   virtual ~EffectLibrary() = 0;
+public:
+  explicit EffectLibrary(const EffectLibraryConfig &cfg);
+  virtual ~EffectLibrary() = 0;
 
   /**
    * @brief Each effect will take in a int64_t input signal
@@ -36,15 +36,14 @@ class EffectLibrary {
    *        inline int64_t process(int64_t in) { return in; }
    *        ```
    * @exception InvalidInput (if I do exceptions)
-   * 
-   * @param in signal in 
+   *
+   * @param in signal in
    * @return int64_t  signal out
    */
   virtual int64_t process(int64_t in) = 0;
 
-  inline const std::string& getName() const { return name_; }
-  inline const std::string& getPath() const { return path_; }
-
+  inline const std::string &getName() const { return name_; }
+  inline const std::string &getPath() const { return path_; }
 };
 
 } // namespace cppedal::effects

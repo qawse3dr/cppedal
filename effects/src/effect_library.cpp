@@ -14,5 +14,5 @@
 using cppedal::effects::EffectLibrary;
 using cppedal::effects::EffectLibraryConfig;
 
-EffectLibrary::EffectLibrary(const EffectLibraryConfig& cfg): name_(cfg.name), path_(cfg.path) {
-}
+EffectLibrary::EffectLibrary(const EffectLibraryConfig &cfg)
+    : name_(cfg.name), path_(cfg.path) {}

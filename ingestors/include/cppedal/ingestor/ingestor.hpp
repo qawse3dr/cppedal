@@ -14,17 +14,16 @@
 namespace cppedal::ingestor {
 
 class Ingestor {
- public:
+public:
   Ingestor();
   virtual ~Ingestor() = 0;
 
   /**
    * @brief Pulls the data off of the adc
-   * 
+   *
    * @return int64_t the adc value.
    */
   virtual int64_t ingest() = 0;
 };
-
 
 } // namespace cppedal::ingestor

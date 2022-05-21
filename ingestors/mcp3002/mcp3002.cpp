@@ -14,9 +14,8 @@
 #include <mcp3002.h>
 #include <wiringPi.h>
 
-using cppedal::ingestor::MCP3002Ingestor;
 using cppedal::ingestor::Ingestor;
-
+using cppedal::ingestor::MCP3002Ingestor;
 
 #define MCP3002_BASE_PIN 100
 MCP3002Ingestor::MCP3002Ingestor() {
@@ -24,14 +23,10 @@ MCP3002Ingestor::MCP3002Ingestor() {
   mcp3002Setup(MCP3002_BASE_PIN, 0);
 }
 
-MCP3002Ingestor::~MCP3002Ingestor() {
-  
-}
+MCP3002Ingestor::~MCP3002Ingestor() {}
 
-int64_t MCP3002Ingestor::ingest() {
-  return analogRead(MCP3002_BASE_PIN);
-}
+int64_t MCP3002Ingestor::ingest() { return analogRead(MCP3002_BASE_PIN); }
 
 std::unique_ptr<Ingestor> cppedal::ingestor::makeIngestor() {
-  return std::unique_ptr<Ingestor>( new MCP3002Ingestor);
+  return std::unique_ptr<Ingestor>(new MCP3002Ingestor);
 }

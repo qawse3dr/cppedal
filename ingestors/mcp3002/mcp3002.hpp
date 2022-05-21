@@ -16,13 +16,12 @@
 namespace cppedal::ingestor {
 
 class MCP3002Ingestor : public Ingestor {
- public:
+public:
   MCP3002Ingestor();
   ~MCP3002Ingestor();
 
   int64_t ingest() override;
 };
-
 
 std::unique_ptr<Ingestor> makeIngestor();
 
