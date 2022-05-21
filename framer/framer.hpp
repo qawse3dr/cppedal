@@ -12,6 +12,10 @@
 #include <memory>
 #include <map>
 
+// Includes for components
+
+
+
 namespace cppedal::framer {
 
 /**
@@ -32,7 +36,15 @@ class Framer {
 
   std::map<std::string, std::unique_ptr<cppedal::effects::Effect>> effect_map_;
 
-  
+  std::vector<
+
+ public:
+  explicit Framer(const std::string& cfg_path);
+  ~Framer() = default;
+
+  bool start();
+
+  void stop();
 }
 
 } // namespace cppedal::framer

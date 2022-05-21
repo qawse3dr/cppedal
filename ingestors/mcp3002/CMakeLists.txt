@@ -8,15 +8,15 @@
 # @author: qawse3dr a.k.a Larry Milne
 #
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/ingestors)
+add_library(
+  cppedal-ingestor-mcp3002
+  SHARED
+  mcp3002.cpp
+)
 
-
-add_subdirectory(mcp3002)
-
-
-add_library(ingestor INTERFACE)
-target_include_directories(
-  ingestor 
-  INTERFACE
-  include/
-  )
+target_link_libraries(
+  cppedal-ingestor-mcp3002
+  PUBLIC
+  wiringPi
+  ingestor
+)

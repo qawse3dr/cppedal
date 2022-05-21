@@ -10,6 +10,12 @@
     "path": "lib/pwm-output/libcppedal-pwm-output-rpi.so"
   },
 
+  // LCD
+  "lcd": {
+    "name": "1602_LCD",
+    "path": "lib/lcd/libcppedal-lcd-1602.so"
+  }
+
   // EFFECTS
   "effect_libraries": [
     {
@@ -22,7 +28,7 @@
     {
       "name": "push_left",
       "type": "push_button",
-      "type_data" {
+      "type_data": {
         "input_gpio": 23,
         "pull_up": false // Might be true TODO
       }
@@ -30,7 +36,7 @@
     {
       "name": "push_middle",
       "type": "push_button",
-      "type_data" {
+      "type_data": {
         "input_gpio": 29,
         "pull_up": false // Might be true TODO
       }
@@ -38,7 +44,7 @@
     {
       "name": "push_right",
       "type": "push_button",
-      "type_data" {
+      "type_data": {
         "input_gpio": 6,
         "pull_up": false // Might be true TODO
       }
@@ -48,7 +54,7 @@
     {
       "name": "rotary_left",
       "type": "rotary_encoder",
-      "type_data" {
+      "type_data": {
         "data_gpio": 24,
         "clk_gpio": 25,
         "pull_up": false // Might be true TODO
@@ -57,7 +63,7 @@
     {
       "name": "rotary_middle",
       "type": "rotary_encoder",
-      "type_data" {
+      "type_data": {
         "data_gpio": 28,
         "clk_gpio": 27,
         "pull_up": false // Might be true TODO
@@ -66,7 +72,7 @@
     {
       "name": "rotary_right",
       "type": "rotary_encoder",
-      "type_data" {
+      "type_data": {
         "data_gpio": 5,
         "clk_gpio": 4,
         "pull_up": false // Might be true TODO
@@ -79,7 +85,7 @@
       "name": "clean",
       "effect-order": [
         {
-          "effect": "clean"
+          "effect": "clean",
           "inputs": [] // No inputs for clean
         }
       ]

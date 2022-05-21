@@ -9,7 +9,8 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include <json.hpp>
+#include <string>
+#include <stdint.h>
 
 namespace cppedal::effects {
   

@@ -8,3 +8,22 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+
+#include "cppedal/ingestor/ingestor.hpp"
+
+#include <memory>
+
+namespace cppedal::ingestor {
+
+class MCP3002Ingestor : public Ingestor {
+ public:
+  MCP3002Ingestor();
+  ~MCP3002Ingestor();
+
+  int64_t ingest() override;
+};
+
+
+std::unique_ptr<Ingestor> makeIngestor();
+
+} // namespace cppedal::ingestor

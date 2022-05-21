@@ -23,6 +23,6 @@ int64_t CleanEffectLibrary::process(int64_t in) {
   return in;
 }
 
-std::unique_ptr<EffectLibrary> makeEffectLibrary(const EffectLibraryConfig& cfg) {
+std::unique_ptr<EffectLibrary> cppedal::effects::makeEffectLibrary(const EffectLibraryConfig& cfg) {
   return std::unique_ptr<EffectLibrary>( new CleanEffectLibrary(cfg));
 }

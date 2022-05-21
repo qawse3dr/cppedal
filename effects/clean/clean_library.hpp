@@ -21,7 +21,6 @@ class CleanEffectLibrary : public EffectLibrary {
   ~CleanEffectLibrary();
   int64_t process(int64_t in) override;
 
-
 };
 
 // Makes the clean effect

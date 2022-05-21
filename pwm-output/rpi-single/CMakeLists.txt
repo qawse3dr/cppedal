@@ -7,16 +7,3 @@
 #
 # @author: qawse3dr a.k.a Larry Milne
 #
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/ingestors)
-
-
-add_subdirectory(mcp3002)
-
-
-add_library(ingestor INTERFACE)
-target_include_directories(
-  ingestor 
-  INTERFACE
-  include/
-  )
