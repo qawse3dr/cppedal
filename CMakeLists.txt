@@ -25,6 +25,8 @@ add_subdirectory(framer)
 add_subdirectory(pwm-output)
 add_subdirectory(ingestors)
 add_subdirectory(input)
+add_subdirectory(lcd)
+
 
 
 

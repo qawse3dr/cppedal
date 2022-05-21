@@ -14,9 +14,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(cppedal
   main.cpp
+  framer.cpp
 )
 
 target_include_directories(cppedal
     PUBLIC
     $(CPPEDAL_JSON_HEADER_PATH)
+)
+
+target_link_libraries(cppedal
+  PUBLIC
+  ingestor
+  pwm-output
+  cppedal-effects
+  dl
 )

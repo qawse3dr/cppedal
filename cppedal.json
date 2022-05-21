@@ -7,7 +7,7 @@
   // OUTPUT
   "pwm_output": {
     "name": "rpi",
-    "path": "lib/pwm-output/libcppedal-pwm-output-rpi.so"
+    "path": "lib/pwm-output/libcppedal-pwm-output-rpi-single.so"
   },
 
   // LCD

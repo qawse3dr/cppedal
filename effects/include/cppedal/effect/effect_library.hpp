@@ -9,8 +9,11 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
+#pragma once 
+
 #include <stdint.h>
 #include <string>
+#include <memory>
 
 namespace cppedal::effects {
 
@@ -26,7 +29,7 @@ private:
 
 public:
   explicit EffectLibrary(const EffectLibraryConfig &cfg);
-  virtual ~EffectLibrary() = 0;
+  virtual ~EffectLibrary() = default;
 
   /**
    * @brief Each effect will take in a int64_t input signal
@@ -46,4 +49,10 @@ public:
   inline const std::string &getPath() const { return path_; }
 };
 
+
 } // namespace cppedal::effects
+
+extern "C" {
+  typedef std::unique_ptr<cppedal::effects::EffectLibrary> (*makeEffectLibraryFtn)(const cppedal::effects::EffectLibraryConfig &);
+}
+#define CPPEDAL_MAKE_EFFECT_LIBRARY_NAME "makeEffectLibrary"

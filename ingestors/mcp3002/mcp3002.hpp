@@ -8,6 +8,8 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+#pragma once 
+
 
 #include "cppedal/ingestor/ingestor.hpp"
 

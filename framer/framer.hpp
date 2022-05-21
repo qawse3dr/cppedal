@@ -8,11 +8,17 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+#pragma once 
 
 #include <map>
 #include <memory>
 
 // Includes for components
+#include <cppedal/effect/effect_library.hpp>
+#include <cppedal/pwm_output/pwm_output.hpp>
+#include <cppedal/ingestor/ingestor.hpp>
+
+
 
 namespace cppedal::framer {
 
@@ -29,19 +35,21 @@ namespace cppedal::framer {
 class Framer {
 private:
   // IO of sound
-  std::unique_ptr<cppedal::ingestor::Ingestor> ingst_;
-  std::unique_ptr<cppedal::pwm_ouput::PwmOuput> output_;
+  std::unique_ptr<cppedal::ingestor::Ingestor> ingst_ = {};
+  std::unique_ptr<cppedal::pwm_output::PwmOutput> output_ = {};
 
-  std::map<std::string, std::unique_ptr<cppedal::effects::Effect>> effect_map_;
+  std::map<std::string, std::unique_ptr<cppedal::effects::EffectLibrary>> effect_map_ = {};
 
-  std::vector <
 
-      public : explicit Framer(const std::string &cfg_path);
+
+  public: 
+  
+  explicit Framer(const std::string& cfg_path);
   ~Framer() = default;
 
   bool start();
 
   void stop();
-}
+};
 
 } // namespace cppedal::framer

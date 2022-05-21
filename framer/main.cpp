@@ -11,6 +11,10 @@
 
 #include <iostream>
 
+#include "framer.hpp"
+
 int main(int argc, char *argv[]) {
   std::cout << "Larrycloud CPPEDAL" << std::endl;
+
+  cppedal::framer::Framer framer("path");
 }

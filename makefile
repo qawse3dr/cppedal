@@ -33,13 +33,13 @@ deploy:
 	echo "TODO"
 
 run: build
-	sudo ./build/bin/cppedal
+	cd build; sudo ./bin/cppedal
 
 run-no-build:
-	sudo ./build/bin/cppedal
+	cd build; sudo ./bin/cppedal
 
 valgrind: build
-	sudo valgrind ./build/bin/cppedal
+	cd build; sudo valgrind ./bin/cppedal
 
 clean:
 	rm -rf ./build

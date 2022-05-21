@@ -7,3 +7,18 @@
 #
 # @author: qawse3dr a.k.a Larry Milne
 #
+
+add_library( 
+  cppedal-pwm-output-rpi
+  SHARED
+  rpi-single.cpp
+)
+
+target_link_libraries(
+  cppedal-pwm-output-rpi
+  PUBLIC
+  pwm-output
+  wiringPi
+)
+
+

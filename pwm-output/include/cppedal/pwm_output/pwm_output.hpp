@@ -8,3 +8,18 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+#pragma once 
+
+#include <stdint.h>
+
+namespace cppedal::pwm_output {
+
+class PwmOutput {
+ public:
+  PwmOutput();
+  virtual ~PwmOutput() = 0;
+  
+  virtual void output(int64_t) = 0;
+};
+
+} // namespace cppedal::pwm_output

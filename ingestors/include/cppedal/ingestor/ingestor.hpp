@@ -8,6 +8,7 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+#pragma once 
 
 #include <stdint.h>
 
