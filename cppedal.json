@@ -27,6 +27,10 @@
     {
       "name": "clean",
       "path": "lib/effects/libcppedal-effect-clean.so"
+    },
+    {
+      "name": "dist",
+      "path": "lib/effects/libcppedal-effect-dist.so"
     }
   ],
   "inputs" : [

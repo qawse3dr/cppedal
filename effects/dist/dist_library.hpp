@@ -16,17 +16,19 @@
 
 namespace cppedal::effects {
 
-class CleanEffectLibrary : public EffectLibrary {
+class DistEffectLibrary : public EffectLibrary {
+ private:
+  uint32_t distortion_value;
+
  public:
-  CleanEffectLibrary() = default;
-  ~CleanEffectLibrary() = default;
+  DistEffectLibrary() = default;
+  ~DistEffectLibrary() = default;
   uint32_t process(uint32_t in) override;
+  bool setInput(const std::string &, int) override;
 };
 
 }  // namespace cppedal::effects
 
 extern "C" {
-// Makes the clean effect
-// All effects must have this
 std::shared_ptr<cppedal::effects::EffectLibrary> makeEffectLibrary();
 }

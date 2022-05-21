@@ -9,10 +9,13 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include "cppedal/effect/effect_library.hpp"
+#include "effect_container.hpp"
 
-using cppedal::effects::EffectLibrary;
-using cppedal::effects::EffectLibraryConfig;
+using cppedal::framer::EffectContainer;
 
-EffectLibrary::EffectLibrary(const EffectLibraryConfig &cfg)
-    : name_(cfg.name), path_(cfg.path) {}
+uint32_t EffectContainer::process(uint32_t in) {
+  for (const auto& effect : effects_) {
+    in = effect->process(in);
+  }
+  return in;
+}

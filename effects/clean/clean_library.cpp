@@ -13,17 +13,14 @@
 
 using cppedal::effects::CleanEffectLibrary;
 using cppedal::effects::EffectLibrary;
-using cppedal::effects::EffectLibraryConfig;
 
-int64_t CleanEffectLibrary::process(int64_t in) {
+uint32_t CleanEffectLibrary::process(uint32_t in) {
   // Do nothing this is a clean effect
-  return in + 1;
+  return in;
 }
 
-
 extern "C" {
-  std::unique_ptr<cppedal::effects::EffectLibrary> makeEffectLibrary(
-      const cppedal::effects::EffectLibraryConfig &cfg) {
-    return std::unique_ptr<EffectLibrary>(new CleanEffectLibrary(cfg));
-  }
+std::shared_ptr<cppedal::effects::EffectLibrary> makeEffectLibrary() {
+  return std::unique_ptr<EffectLibrary>(new CleanEffectLibrary);
+}
 }

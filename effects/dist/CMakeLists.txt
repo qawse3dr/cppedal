@@ -8,27 +8,15 @@
 # @author: qawse3dr a.k.a Larry Milne
 #
 
-
-# Set build folder
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-add_executable(cppedal
-  main.cpp
-  framer.cpp
-  effect_container.cpp
+add_library(
+  cppedal-effect-dist
+  SHARED
+  dist_library.cpp
 )
 
-target_include_directories(cppedal
-    PUBLIC
-    ${CPPEDAL_JSON_HEADER_PATH}
-)
 
-target_link_libraries(cppedal
+target_link_libraries(
+  cppedal-effect-dist
   PUBLIC
-  ingestor
-  pwm-output
   cppedal-effects
-  cppedal-input
-  dl
-  pthread
 )

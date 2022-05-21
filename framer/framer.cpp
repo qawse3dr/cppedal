@@ -28,47 +28,19 @@ Framer::Framer(const std::string& cfg_path) {
   }
 
   // Get ingestor lib
-  ingest_handler_ = dlopen(cfg_.ingestor.path.c_str(), RTLD_NOW);
-  if (!ingest_handler_) {
-    std::cerr << "Failed to open ingestor " << cfg_.ingestor.name << " at "
-              << cfg_.ingestor.path << " with " << dlerror();
-    exit(EXIT_FAILURE);
-  }
-
-  // Create ingestor
-  makeIngestorFtn ingst_ftn = reinterpret_cast<makeIngestorFtn>(
-      dlsym(ingest_handler_, CPPEDAL_MAKE_INGESTOR_NAME));
-  if (!ingst_ftn) {
-    std::cerr << "Failed to find ingestor" << CPPEDAL_MAKE_INGESTOR_NAME
-              << " in " << cfg_.ingestor.name << std::endl;
-  }
-  ingst_ = std::move(ingst_ftn());
 
   // Create PWM_OUTPUT
-  output_handler_ = dlopen(cfg_.pwm_output.path.c_str(), RTLD_NOW);
-  if (!output_handler_) {
-    std::cerr << "Failed to open pwm_output " << cfg_.pwm_output.name << " at "
-              << cfg_.pwm_output.path << " with " << dlerror();
-    exit(EXIT_FAILURE);
+
+  // Load lcd lib
+
+  // Load IO lib
+
+  // Load Effect libs
+  for (const auto& e : cfg_.effects_libraries) {
+    loadEffectLib(e);
   }
 
-  // Create ingestor
-  makePwmOutputFtn output_ftn = reinterpret_cast<makePwmOutputFtn>(
-      dlsym(output_handler_, CPPEDAL_MAKE_PWM_OUTPUT_NAME));
-  if (!output_ftn) {
-    std::cerr << "Failed to find pwm_output " << CPPEDAL_MAKE_PWM_OUTPUT_NAME
-              << " in " << cfg_.pwm_output.name << std::endl;
-  }
-  output_ = std::move(output_ftn());
-}
-
-Framer::~Framer() {
-  // we have to delete all pointers before libraries
-  ingst_.reset();
-  output_.reset();
-
-  dlclose(output_handler_);
-  dlclose(ingest_handler_);
+  // setup effect configs
 }
 
 void Framer::workLoop() {
@@ -78,6 +50,10 @@ void Framer::workLoop() {
     input = ingst_->ingest();
 
     // Do effects
+    // {
+    //   std::lock_guard<std::mutex> lk(effect_mutex_);
+    //   input = cur_effect_->process(input);
+    // }
 
     // output to pwm
     output_->output(input);
@@ -115,12 +91,19 @@ bool Framer::parseConfig(const std::string cfg_path) {
     return false;
 
   // // parse effect libraries
-  // parseEffectLibs(j);
+  if (!parseEffectLibs(j)) {
+    return false;
+  }
+  if (cfg_.effects_libraries.empty()) {
+    std::cerr << "No effect are loading why are you using a pedal..."
+              << std::endl;
+    return false;
+  }
 
   // // input info
   // parseInputInfo(j);
 
-  // // effects
+  // effects
   // parseEffectInfo(j);
 
   // SUSSY BUTTONS
@@ -152,8 +135,13 @@ std::string Framer::dumpCfg() const {
      << "lcd:        " << cfg_.lcd.name << " - " << cfg_.lcd.path << std::endl
      << "input_libs: " << cfg_.input_library.name << " - "
      << cfg_.input_library.path << std::endl
+     << "EFFECT LIBS" << std::endl;
 
-     << "prev_butt:  " << cfg_.prev_effect_button << std::endl
+  for (const auto& effect : cfg_.effects_libraries) {
+    ss << "{" << effect.name << " - " << effect.path << "}" << std::endl;
+  }
+
+  ss << "prev_butt:  " << cfg_.prev_effect_button << std::endl
      << "next_butt:  " << cfg_.next_effect_button << std::endl
      << "CONFIG END  " << std::endl;
   return ss.str();
@@ -164,11 +152,13 @@ bool Framer::parseLibraryInfo(const std::string& name, const nlohmann::json& j,
   auto it = j.find(name);
   if (it == j.end()) {
     std::cerr << "\"" << name << "\", not found" << std::endl;
+    return false;
   }
 
-  if (it.value().is_object()) {
-    std::cerr << "\"" << name << "\", excepted type object with name and path"
+  if (!it.value().is_object()) {
+    std::cerr << "\"" << name << "\", expected type object with name and path"
               << std::endl;
+    return false;
   }
 
   const nlohmann::json& libj = it.value();
@@ -176,17 +166,91 @@ bool Framer::parseLibraryInfo(const std::string& name, const nlohmann::json& j,
   auto name_it = libj.find("name");
   if (name_it == libj.end()) {
     std::cerr << "\"" << name << "\", name not found" << std::endl;
+    return false;
   }
 
   auto path_it = libj.find("path");
   if (path_it == libj.end()) {
     std::cerr << "\"" << name << "\", path not found" << std::endl;
+    return false;
   }
 
   info.name = name_it.value().get<std::string>();
   info.path = path_it.value().get<std::string>();
 
   return true;
+}
+
+bool Framer::parseEffectLibs(const nlohmann::json& j) {
+  auto effect_array_it = j.find("effect_libraries");
+  if (effect_array_it == j.end()) {
+    std::cerr << "Failed to find effect_libraries" << std::endl;
+    return false;
+  }
+
+  // Make sure it is an array
+  if (!effect_array_it.value().is_array()) {
+    std::cerr << "effect_libraries must be an array" << std::endl;
+    return false;
+  }
+
+  int i = 1;
+  for (const auto& effect : effect_array_it.value()) {
+    auto name_it = effect.find("name");
+    if (name_it == effect.end()) {
+      std::cerr << "name not found for effect_libraries:" << i << std::endl;
+      return false;
+    }
+
+    auto path_it = effect.find("path");
+    if (path_it == effect.end()) {
+      std::cerr << "path not found for effect_libraries:" << i << std::endl;
+      return false;
+    }
+
+    FramerConfig::LibraryInfo info;
+    info.name = name_it.value().get<std::string>();
+    info.path = path_it.value().get<std::string>();
+    cfg_.effects_libraries.emplace_back(std::move(info));
+  }
+  return true;
+}
+
+bool Framer::loadIngst() {
+  ingest_handler_ = dlopen(cfg_.ingestor.path.c_str(), RTLD_NOW);
+  if (!ingest_handler_) {
+    std::cerr << "Failed to open ingestor " << cfg_.ingestor.name << " at "
+              << cfg_.ingestor.path << " with " << dlerror();
+    return false;
+  }
+
+  // Create ingestor
+  makeIngestorFtn ingst_ftn = reinterpret_cast<makeIngestorFtn>(
+      dlsym(ingest_handler_, CPPEDAL_MAKE_INGESTOR_NAME));
+  if (!ingst_ftn) {
+    std::cerr << "Failed to find ingestor" << CPPEDAL_MAKE_INGESTOR_NAME
+              << " in " << cfg_.ingestor.name << std::endl;
+    return false;
+  }
+  ingst_ = std::move(ingst_ftn());
+}
+
+bool Framer::loadOutput() {
+  output_handler_ = dlopen(cfg_.pwm_output.path.c_str(), RTLD_NOW);
+  if (!output_handler_) {
+    std::cerr << "Failed to open pwm_output " << cfg_.pwm_output.name << " at "
+              << cfg_.pwm_output.path << " with " << dlerror();
+    exit(EXIT_FAILURE);
+  }
+
+  // Create ingestor
+  makePwmOutputFtn output_ftn = reinterpret_cast<makePwmOutputFtn>(
+      dlsym(output_handler_, CPPEDAL_MAKE_PWM_OUTPUT_NAME));
+  if (!output_ftn) {
+    std::cerr << "Failed to find pwm_output " << CPPEDAL_MAKE_PWM_OUTPUT_NAME
+              << " in " << cfg_.pwm_output.name << std::endl;
+  }
+  output_ = std::move(output_ftn());
 }
 
 bool Framer::start() {
@@ -205,4 +269,12 @@ void Framer::stop() {
   if (work_thread_.joinable()) {
     work_thread_.join();
   }
+}
+Framer::~Framer() {
+  // we have to delete all pointers before libraries
+  ingst_.reset();
+  output_.reset();
+
+  dlclose(output_handler_);
+  dlclose(ingest_handler_);
 }

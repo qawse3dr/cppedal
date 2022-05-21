@@ -9,17 +9,16 @@
 #
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/effects)
+
 # Effects
 add_subdirectory(clean)
+add_subdirectory(dist)
 
-add_library(cppedal-effects STATIC
-  src/effect_library.cpp
-)
+add_library(cppedal-effects INTERFACE)
 
 target_include_directories(
   cppedal-effects
-  PUBLIC
+  INTERFACE
   include/
-  ${CPPEDAL_JSON_HEADER_PATH}
 )
 
