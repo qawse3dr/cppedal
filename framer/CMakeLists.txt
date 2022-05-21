@@ -29,4 +29,5 @@ target_link_libraries(cppedal
   cppedal-effects
   cppedal-input
   dl
+  pthread
 )

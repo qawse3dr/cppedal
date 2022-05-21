@@ -8,18 +8,25 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
-#pragma once 
+#pragma once
 
 #include <stdint.h>
+
+#include <memory>
 
 namespace cppedal::pwm_output {
 
 class PwmOutput {
  public:
-  PwmOutput();
-  virtual ~PwmOutput() = 0;
-  
-  virtual void output(int64_t) = 0;
+  PwmOutput() = default;
+  virtual ~PwmOutput() = default;
+
+  virtual void output(uint32_t) = 0;
 };
 
-} // namespace cppedal::pwm_output
+}  // namespace cppedal::pwm_output
+
+extern "C" {
+typedef std::unique_ptr<cppedal::pwm_output::PwmOutput> (*makePwmOutputFtn)();
+}
+#define CPPEDAL_MAKE_PWM_OUTPUT_NAME "makePwmOutput"

@@ -26,26 +26,62 @@ Framer::Framer(const std::string& cfg_path) {
   } else {
     std::cout << dumpCfg();
   }
-  // void* handler = dlopen("lib/effects/libcppedal-effect-clean.so", RTLD_NOW);
-  // if (!handler) {
-  //   fprintf(stderr, "%s\n", dlerror());
-  //   exit(EXIT_FAILURE);
-  // }
 
-  // makeEffectLibraryFtn effectFtn =
-  //     (makeEffectLibraryFtn)dlsym(handler, CPPEDAL_MAKE_EFFECT_LIBRARY_NAME);
+  // Get ingestor lib
+  ingest_handler_ = dlopen(cfg_.ingestor.path.c_str(), RTLD_NOW);
+  if (!ingest_handler_) {
+    std::cerr << "Failed to open ingestor " << cfg_.ingestor.name << " at "
+              << cfg_.ingestor.path << " with " << dlerror();
+    exit(EXIT_FAILURE);
+  }
 
-  // cppedal::effects::EffectLibraryConfig cfg;
-  // cfg.name = "clean";
-  // cfg.path = "path";
+  // Create ingestor
+  makeIngestorFtn ingst_ftn = reinterpret_cast<makeIngestorFtn>(
+      dlsym(ingest_handler_, CPPEDAL_MAKE_INGESTOR_NAME));
+  if (!ingst_ftn) {
+    std::cerr << "Failed to find ingestor" << CPPEDAL_MAKE_INGESTOR_NAME
+              << " in " << cfg_.ingestor.name << std::endl;
+  }
+  ingst_ = std::move(ingst_ftn());
 
-  // {
-  //   auto effectLibrary = effectFtn(cfg);
-  //   std::cout << effectLibrary->process(200) << std::endl;
-  //   std::cout << effectLibrary->getName() << " " << effectLibrary->getPath()
-  //             << std::endl;
-  // }
-  // dlclose(handler);
+  // Create PWM_OUTPUT
+  output_handler_ = dlopen(cfg_.pwm_output.path.c_str(), RTLD_NOW);
+  if (!output_handler_) {
+    std::cerr << "Failed to open pwm_output " << cfg_.pwm_output.name << " at "
+              << cfg_.pwm_output.path << " with " << dlerror();
+    exit(EXIT_FAILURE);
+  }
+
+  // Create ingestor
+  makePwmOutputFtn output_ftn = reinterpret_cast<makePwmOutputFtn>(
+      dlsym(output_handler_, CPPEDAL_MAKE_PWM_OUTPUT_NAME));
+  if (!output_ftn) {
+    std::cerr << "Failed to find pwm_output " << CPPEDAL_MAKE_PWM_OUTPUT_NAME
+              << " in " << cfg_.pwm_output.name << std::endl;
+  }
+  output_ = std::move(output_ftn());
+}
+
+Framer::~Framer() {
+  // we have to delete all pointers before libraries
+  ingst_.reset();
+  output_.reset();
+
+  dlclose(output_handler_);
+  dlclose(ingest_handler_);
+}
+
+void Framer::workLoop() {
+  uint32_t input;
+  while (running_) {
+    // Get input from ingestor
+    input = ingst_->ingest();
+
+    // Do effects
+
+    // output to pwm
+    output_->output(input);
+  }
 }
 
 bool Framer::parseConfig(const std::string cfg_path) {
@@ -108,7 +144,6 @@ bool Framer::parseConfig(const std::string cfg_path) {
 std::string Framer::dumpCfg() const {
   std::stringstream ss;
 
-  //
   ss << "CONFIG START" << std::endl
      << "ingestor:   " << cfg_.ingestor.name << " - " << cfg_.ingestor.path
      << std::endl
@@ -151,11 +186,23 @@ bool Framer::parseLibraryInfo(const std::string& name, const nlohmann::json& j,
   info.name = name_it.value().get<std::string>();
   info.path = path_it.value().get<std::string>();
 
-  std::cout << "info" << info.name << " " << info.path << std::endl;
-
   return true;
 }
 
-bool Framer::start() { return true; }
+bool Framer::start() {
+  if (running_) {
+    std::cerr << "Framer: already running ignore start()" << std::endl;
+    return false;
+  }
 
-void Framer::stop() {}
+  running_ = true;
+  work_thread_ = std::thread(&Framer::workLoop, this);
+  return true;
+}
+
+void Framer::stop() {
+  running_ = false;
+  if (work_thread_.joinable()) {
+    work_thread_.join();
+  }
+}

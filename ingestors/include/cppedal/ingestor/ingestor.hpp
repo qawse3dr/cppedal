@@ -8,23 +8,30 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
-#pragma once 
+#pragma once
 
 #include <stdint.h>
+
+#include <memory>
 
 namespace cppedal::ingestor {
 
 class Ingestor {
-public:
-  Ingestor();
-  virtual ~Ingestor() = 0;
+ public:
+  Ingestor() = default;
+  virtual ~Ingestor() = default;
 
   /**
    * @brief Pulls the data off of the adc
    *
    * @return int64_t the adc value.
    */
-  virtual int64_t ingest() = 0;
+  virtual uint32_t ingest() = 0;
 };
 
-} // namespace cppedal::ingestor
+}  // namespace cppedal::ingestor
+
+extern "C" {
+typedef std::unique_ptr<cppedal::ingestor::Ingestor> (*makeIngestorFtn)();
+}
+#define CPPEDAL_MAKE_INGESTOR_NAME "makeIngestor"

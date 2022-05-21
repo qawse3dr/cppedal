@@ -13,10 +13,16 @@
 
 #include <wiringPi.h>
 
+#include <iostream>
+
 using cppedal::pwm_output::PwmOutput;
 using cppedal::pwm_output::RpiSinglePwmOutput;
 
 RpiSinglePwmOutput::RpiSinglePwmOutput() {
+  if (wiringPiSetup() == -1) {
+    std::cerr << "failed to setup wiringPI" << std::endl;
+    exit(1);
+  }
   pinMode(1, PWM_OUTPUT);
   pwmSetRange(4096);
   pwmSetClock(1);
@@ -24,8 +30,10 @@ RpiSinglePwmOutput::RpiSinglePwmOutput() {
 }
 RpiSinglePwmOutput::~RpiSinglePwmOutput() {}
 
-void RpiSinglePwmOutput::output(int64_t out) { pwmWrite(1, out); }
+void RpiSinglePwmOutput::output(uint32_t out) { pwmWrite(1, out); }
 
-std::unique_ptr<PwmOutput> cppedal::pwm_output::makePwmOutput() {
+extern "C" {
+std::unique_ptr<PwmOutput> makePwmOutput() {
   return std::unique_ptr<PwmOutput>(new RpiSinglePwmOutput);
+}
 }

@@ -8,12 +8,12 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
-#pragma once 
+#pragma once
 
-#include <memory>
 #include <stdint.h>
 
 #include <cppedal/pwm_output/pwm_output.hpp>
+#include <memory>
 
 namespace cppedal::pwm_output {
 
@@ -22,10 +22,11 @@ class RpiSinglePwmOutput : public PwmOutput {
   RpiSinglePwmOutput();
   ~RpiSinglePwmOutput();
 
-  void output(int64_t out) override;
+  void output(uint32_t out) override;
 };
 
-std::unique_ptr<PwmOutput> makePwmOutput();
+}  // namespace cppedal::pwm_output
 
-
-} // namespace cppedal::pwm_output
+extern "C" {
+std::unique_ptr<cppedal::pwm_output::PwmOutput> makePwmOutput();
+}

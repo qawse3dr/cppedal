@@ -9,13 +9,13 @@
 #
 
 add_library( 
-  cppedal-pwm-output-rpi
+  cppedal-pwm-output-rpi-single
   SHARED
   rpi-single.cpp
 )
 
 target_link_libraries(
-  cppedal-pwm-output-rpi
+  cppedal-pwm-output-rpi-single
   PUBLIC
   pwm-output
   wiringPi

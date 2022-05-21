@@ -13,6 +13,7 @@
 #include <json.hpp>
 #include <map>
 #include <memory>
+#include <thread>
 #include <vector>
 
 // Includes for components
@@ -64,7 +65,9 @@ class Framer {
  private:
   // IO of sound
   std::unique_ptr<cppedal::ingestor::Ingestor> ingst_ = {};
+  void* ingest_handler_;
   std::unique_ptr<cppedal::pwm_output::PwmOutput> output_ = {};
+  void* output_handler_;
   std::map<std::string, std::unique_ptr<cppedal::effects::EffectLibrary>>
       effect_map_ = {};
 
@@ -75,9 +78,13 @@ class Framer {
   bool parseLibraryInfo(const std::string& name, const nlohmann::json& it,
                         FramerConfig::LibraryInfo& info);
 
+  std::thread work_thread_;
+  bool running_ = false;
+  void workLoop();
+
  public:
   explicit Framer(const std::string& cfg_path);
-  ~Framer() = default;
+  ~Framer();
 
   bool start();
 
