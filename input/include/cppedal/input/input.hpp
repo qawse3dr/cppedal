@@ -13,6 +13,7 @@
 #include <stdint.h>
 
 #include <functional>
+#include <mutex>
 
 namespace cppedal::input {
 

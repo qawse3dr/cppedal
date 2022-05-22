@@ -13,7 +13,11 @@
 #include <stdint.h>
 
 #include <cppedal/effect/effect_library.hpp>
+#include <cppedal/lcd/lcd.hpp>
+#include <functional>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace cppedal::framer {
@@ -23,9 +27,14 @@ class EffectContainer {
   std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>> effects_ = {};
 
  public:
+  std::vector<std::pair<std::string, std::string>> inputs_ = {};
+  static cppedal::lcd::LCD* lcd_;
+
+ public:
   EffectContainer(
       const std::string& name,
-      std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>>&& effects);
+      std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>>&& effects,
+      std::vector<std::pair<std::string, std::string>>&& input);
   ~EffectContainer() = default;
 
   /**
@@ -35,6 +44,22 @@ class EffectContainer {
    * @return uint32_t output signal
    */
   uint32_t process(uint32_t in);
+
+  void setInput(const std::string& key, int value) {
+    if (lcd_) {
+      lcd_->print(key + " " + std::to_string(value), 1, 0);
+    }
+    for (const auto& effect : effects_) {
+      effect->setInput(key, value);
+    }
+  }
+
+  std::function<void(int64_t)> getCallback(const std::string& key) {
+    return std::bind(&EffectContainer::setInput, this, key,
+                     std::placeholders::_1);
+  }
+
+  const std::string& getName() { return name_; }
 };
 
 }  // namespace cppedal::framer

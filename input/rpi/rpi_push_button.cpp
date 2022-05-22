@@ -24,6 +24,8 @@ RpiPushButton::RpiPushButton(uint8_t pin, bool pull_up)
   pinMode(pin_, INPUT);
   if (pull_up_) {
     pullUpDnControl(pin_, PUD_UP);
+  } else {
+    pullUpDnControl(pin_, PUD_DOWN);
   }
   // Setup button
   thread_ = std::thread(&RpiPushButton::workLoop, this);
@@ -50,7 +52,7 @@ void RpiPushButton::workLoop() {
     // Wait for interupt only allow for cancelling when waiting
     // to avoid bads
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldCState);
-    usleep(50);
+    usleep(5000);
     pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldCState);
   }
 }

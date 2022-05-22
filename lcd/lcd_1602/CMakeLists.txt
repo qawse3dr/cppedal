@@ -8,16 +8,16 @@
 # @author: qawse3dr a.k.a Larry Milne
 #
 
+add_library( 
+  cppedal-lcd-1602
+  SHARED
+  lcd_1602.cpp
+)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/lcd)
-
-
-add_subdirectory(lcd_1602)
-
-
-add_library(lcd INTERFACE)
-target_include_directories(
-  lcd 
-  INTERFACE
-  include/
+target_link_libraries(
+  cppedal-lcd-1602
+  PUBLIC
+  lcd
+  wiringPiDev
+  wiringPi
 )

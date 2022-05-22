@@ -8,3 +8,23 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+#pragma once
+
+#include <memory>
+
+namespace cppedal::lcd {
+
+class LCD {
+ public:
+  LCD() = default;
+  ~LCD() = default;
+  virtual void print(const std::string& str, int line, int pos) = 0;
+  virtual void clear() = 0;
+};
+
+}  // namespace cppedal::lcd
+
+extern "C" {
+typedef std::unique_ptr<cppedal::lcd::LCD> (*makeLCDftn)();
+}
+#define CPPEDAL_MAKE_LCD_NAME "makeLCD"

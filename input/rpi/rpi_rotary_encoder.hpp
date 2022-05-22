@@ -11,8 +11,18 @@
 #pragma once
 #include <cppedal/input/rotary_encoder.hpp>
 #include <limits>
+#include <thread>
 
 namespace cppedal::input {
 
-class RpiRotaryEncoder {};
+class RpiRotaryEncoder : public RotaryEncoder {
+ private:
+  std::thread thread_;
+
+  void workLoop();
+
+ public:
+  RpiRotaryEncoder(uint8_t clk_pin, uint8_t data_pin, bool pull_up);
+  ~RpiRotaryEncoder();
+};
 }  // namespace cppedal::input

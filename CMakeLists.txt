@@ -11,7 +11,7 @@
 cmake_minimum_required (VERSION 3.18)
 project(cppedal VERSION 1.0)
 
-set (CXX_STANDARD C++20)
+set(CMAKE_CXX_STANDARD 20)
 
 # nlohmann JSON https://github.com/nlohmann/json
 # user var cause INTERFACE LIB is being weird

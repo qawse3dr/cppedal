@@ -102,7 +102,7 @@
       "inputs": [
         {
           "name": "dist_level",
-          "input": "rotary_left"
+          "input": "rotary_right"
         }
       ]
     }

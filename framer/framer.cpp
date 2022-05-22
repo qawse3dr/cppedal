@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using cppedal::framer::Framer;
 using cppedal::framer::FramerConfig;
@@ -54,6 +55,7 @@ Framer::Framer(const std::string& cfg_path) {
       break;
     }
     cur_effect_ = effects_.begin();
+    setupInputCallbacks();
     std::cout << "CPPEDAL SETUP" << std::endl;
     return;
 
@@ -71,7 +73,7 @@ void Framer::workLoop() {
     // Do effects
     {
       std::lock_guard<std::mutex> lk(effect_mutex_);
-      input = cur_effect_->process(input);
+      input = (*cur_effect_)->process(input);
     }
 
     // output to pwm
@@ -290,12 +292,14 @@ bool Framer::parseEffectInfo(const nlohmann::json& j) {
     auto name_it = effect.find("name");
     if (name_it == effect.end() || !name_it.value().is_string()) {
       std::cerr << "String name not found for effect: " << i << std::endl;
+      return false;
     }
     info.name = name_it.value().get<std::string>();
 
     auto lib_it = effect.find("effects");
     if (lib_it == effect.end() || !lib_it.value().is_array()) {
       std::cerr << "Array effects not found for effect: " << i << std::endl;
+      return false;
     }
     for (const auto& lib : lib_it.value()) {
       info.effect_libraries.emplace_back(lib.get<std::string>());
@@ -304,9 +308,15 @@ bool Framer::parseEffectInfo(const nlohmann::json& j) {
     auto input_it = effect.find("inputs");
     if (input_it == effect.end() || !input_it.value().is_array()) {
       std::cerr << "Array input not found for effect: " << i << std::endl;
+      return false;
     }
     for (const auto& input : input_it.value()) {
-      // TODO error check
+      if (input.find("name") == input.end() ||
+          input.find("input") == input.end()) {
+        std::cerr << "couldn't find name or input for effect input"
+                  << std::endl;
+        return false;
+      }
       info.input_mapping.emplace_back(input["name"].get<std::string>(),
                                       input["input"].get<std::string>());
     }
@@ -335,13 +345,14 @@ bool Framer::parseInputInfo(const nlohmann::json& j) {
       FramerConfig::PushButtonInfo info;
       info.name = input["name"].get<std::string>();
       info.pin = input["type_data"]["input_gpio"].get<int>();
+      info.pull_up = input["type_data"]["pull_up"].get<int>();
       cfg_.push_button_info.emplace_back(std::move(info));
-      // TODO add pull_up
     } else if (input["type"].get<std::string>() == "rotary_encoder") {
       FramerConfig::RotaryEncoderInfo info;
       info.name = input["name"].get<std::string>();
       info.clk = input["type_data"]["clk_gpio"].get<int>();
       info.data = input["type_data"]["data_gpio"].get<int>();
+      info.pull_up = input["type_data"]["pull_up"].get<int>();
       cfg_.rotary_encoder_info.emplace_back(std::move(info));
     } else {
       // TODO make error better
@@ -369,7 +380,7 @@ bool Framer::loadIngst() {
               << " in " << cfg_.ingestor.name << std::endl;
     return false;
   }
-  ingst_ = std::move(ingst_ftn());
+  ingst_ = ingst_ftn();
   return true;
 }
 
@@ -389,7 +400,7 @@ bool Framer::loadOutput() {
               << " in " << cfg_.pwm_output.name << std::endl;
     return false;
   }
-  output_ = std::move(output_ftn());
+  output_ = output_ftn();
   return true;
 }
 
@@ -410,10 +421,37 @@ bool Framer::loadInput() {
               << cfg_.input_library.name << std::endl;
     return false;
   }
-  // TODO ADD rotary dial lib
+  makeRotaryEncoder = reinterpret_cast<makeRotaryEncoderFtn>(
+      dlsym(cfg_.input_library.handler, CPPEDAL_MAKE_ROTARY_ENCODER_NAME));
+  if (!makeRotaryEncoder) {
+    std::cerr << "Failed to find input_library "
+              << CPPEDAL_MAKE_ROTARY_ENCODER_NAME << " in "
+              << cfg_.input_library.name << std::endl;
+    return false;
+  }
+
   return true;
 }
-bool Framer::loadLCD() { return true; }
+bool Framer::loadLCD() {
+  cfg_.lcd.handler = dlopen(cfg_.lcd.path.c_str(), RTLD_NOW);
+  if (!cfg_.lcd.handler) {
+    std::cerr << "Failed to open lcd " << cfg_.lcd.name << " at "
+              << cfg_.lcd.path << " with " << dlerror();
+    return false;
+  }
+
+  // Create ingestor
+  makeLCDftn ftn = reinterpret_cast<makeLCDftn>(
+      dlsym(cfg_.lcd.handler, CPPEDAL_MAKE_LCD_NAME));
+  if (!ftn) {
+    std::cerr << "Failed to find pwm_output " << CPPEDAL_MAKE_LCD_NAME << " in "
+              << cfg_.pwm_output.name << std::endl;
+    return false;
+  }
+  lcd_ = ftn();
+  cppedal::framer::EffectContainer::lcd_ = lcd_.get();
+  return true;
+}
 
 bool Framer::loadEffectLib(FramerConfig::LibraryInfo& effect) {
   if (effect_library_map_.find(effect.name) != effect_library_map_.end()) {
@@ -443,6 +481,7 @@ bool Framer::setupEffects() {
   for (const auto& info : cfg_.effects_info) {
     // TODO input
     std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>> effects;
+    std::vector<std::pair<std::string, std::string>> inputs;
 
     for (auto& lib : info.effect_libraries) {
       auto lib_it = effect_library_map_.find(lib);
@@ -453,21 +492,57 @@ bool Framer::setupEffects() {
       }
       effects.emplace_back(lib_it->second);
     }
-    effects_.emplace_back(info.name, std::move(effects));
+
+    for (auto& input : info.input_mapping) {
+      auto input_it = input_map_.find(input.second);
+      if (input_it == input_map_.end()) {
+        std::cerr << "failed to find input" << input.first << " for "
+                  << info.name << std::endl;
+        return false;
+      }
+      inputs.emplace_back(input);
+    }
+    effects_.emplace_back(std::make_unique<EffectContainer>(
+        info.name, std::move(effects), std::move(inputs)));
   }
   return true;
 }
 
 bool Framer::setupInputs() {
   for (auto& button : cfg_.push_button_info) {
-    input_map_.emplace(button.name, makePushButton(button.pin));
+    input_map_.emplace(button.name, makePushButton(button.pin, button.pull_up));
   }
 
-  // TODO setup effect input
+  for (auto& encoder : cfg_.rotary_encoder_info) {
+    input_map_.emplace(
+        encoder.name,
+        makeRotaryEncoder(encoder.clk, encoder.data, encoder.pull_up));
+  }
+
   input_map_[cfg_.prev_effect_button]->setCallback(
       std::bind(&Framer::prevEvent, this, std::placeholders::_1));
   input_map_[cfg_.next_effect_button]->setCallback(
       std::bind(&Framer::nextEvent, this, std::placeholders::_1));
+  return true;
+}
+
+bool Framer::setupInputCallbacks() {
+  // clear all callbacks
+  for (const auto& input : input_map_) {
+    input.second->setCallback(nullptr);
+  }
+  for (const auto& input : (*cur_effect_)->inputs_) {
+    input_map_[input.second]->setCallback(
+        (*cur_effect_)->getCallback(input.first));
+  }
+
+  input_map_[cfg_.prev_effect_button]->setCallback(
+      std::bind(&Framer::prevEvent, this, std::placeholders::_1));
+  input_map_[cfg_.next_effect_button]->setCallback(
+      std::bind(&Framer::nextEvent, this, std::placeholders::_1));
+  lcd_->clear();
+  lcd_->print((*cur_effect_)->getName(), 0,
+              7 - (*cur_effect_)->getName().length() / 2);
   return true;
 }
 
@@ -494,11 +569,14 @@ Framer::~Framer() {
   output_.reset();
   effect_library_map_.clear();
   effects_.clear();
+  lcd_.reset();
+  input_map_.clear();
 
   for (const auto& effect : cfg_.effects_libraries) {
     if (effect.handler) dlclose(effect.handler);
   }
-
+  if (cfg_.input_library.handler) dlclose(cfg_.input_library.handler);
+  if (cfg_.lcd.handler) dlclose(cfg_.lcd.handler);
   if (cfg_.pwm_output.handler) dlclose(cfg_.pwm_output.handler);
   if (cfg_.ingestor.handler) dlclose(cfg_.ingestor.handler);
 }

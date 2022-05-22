@@ -24,6 +24,11 @@ uint32_t DistEffectLibrary::process(uint32_t in) {
 
 bool DistEffectLibrary::setInput(const std::string& key, int value) {
   // Implement "dist"
+  if (key == "dist_level") {
+    distortion_value = 150 - value * 5;
+    std::cout << distortion_value << std::endl;
+  }
+
   return true;
 }
 

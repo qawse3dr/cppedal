@@ -29,6 +29,7 @@ target_link_libraries(cppedal
   pwm-output
   cppedal-effects
   cppedal-input
+  lcd
   dl
   pthread
 )

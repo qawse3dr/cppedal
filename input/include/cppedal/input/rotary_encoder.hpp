@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#include <atomic>
 #include <limits>
+#include <memory>
 
 #include "input.hpp"
 
@@ -21,17 +21,19 @@ class RotaryEncoder : public Input {
  protected:
   uint8_t clk_pin_;
   uint8_t data_pin_;
+  bool pull_up_;
 
-  std::atomic<int64_t> value_ = {0};
+  int64_t value_ = {0};
 
   int64_t max_ = std::numeric_limits<int64_t>::max();
   int64_t min_ = std::numeric_limits<int64_t>::min();
 
  public:
-  RotaryEncoder(uint8_t clk_pin, uint8_t data_pin)
+  RotaryEncoder(uint8_t clk_pin, uint8_t data_pin, bool pull_up)
       : Input(InputTypes::kRotaryEncoder),
         clk_pin_(clk_pin),
-        data_pin_(data_pin) {}
+        data_pin_(data_pin),
+        pull_up_(pull_up) {}
   ~RotaryEncoder() = default;
   int64_t getValue() { return value_; }
   void reset() {
@@ -44,3 +46,9 @@ class RotaryEncoder : public Input {
 };
 
 }  // namespace cppedal::input
+
+extern "C" {
+typedef std::unique_ptr<cppedal::input::Input> (*makeRotaryEncoderFtn)(
+    uint8_t clk, uint8_t data, bool pull_up);
+}
+#define CPPEDAL_MAKE_ROTARY_ENCODER_NAME "makeRotaryEncoder"
