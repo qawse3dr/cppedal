@@ -75,7 +75,7 @@ void LCD1602::loop() {
     }
 
     lcdPosition(lcdhd, std::get<1>(data), std::get<2>(data));
-    lcdPrintf(lcdhd, std::get<0>(data).c_str());
+    lcdPrintf(lcdhd, (std::get<0>(data) + "  ").c_str());
   }
 }
 

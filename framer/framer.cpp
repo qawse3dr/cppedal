@@ -534,6 +534,9 @@ bool Framer::setupInputCallbacks() {
   for (const auto& input : (*cur_effect_)->inputs_) {
     input_map_[input.second]->setCallback(
         (*cur_effect_)->getCallback(input.first));
+    reinterpret_cast<cppedal::input::RotaryEncoder*>(
+        input_map_[input.second].get())
+        ->reset();
   }
 
   input_map_[cfg_.prev_effect_button]->setCallback(
