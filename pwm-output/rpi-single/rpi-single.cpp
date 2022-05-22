@@ -24,7 +24,7 @@ RpiSinglePwmOutput::RpiSinglePwmOutput() {
     exit(1);
   }
   pinMode(1, PWM_OUTPUT);
-  pwmSetRange(4096);
+  pwmSetRange(2048);
   pwmSetClock(1);
   pwmSetMode(1);
 }

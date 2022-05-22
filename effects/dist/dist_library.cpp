@@ -17,8 +17,8 @@ using cppedal::effects::EffectLibrary;
 uint32_t DistEffectLibrary::process(uint32_t in) {
   // Clip the signal to make it distorted
   // TODO change to grab an avg isntead of 2047
-  if (in > 2047 + distortion_value) in = 2047 + distortion_value;
-  if (in < 2047 - distortion_value) in = 2047 - distortion_value;
+  if (in > 1024 + distortion_value) in = 1024 + distortion_value;
+  if (in < 1024 - distortion_value) in = 1024 - distortion_value;
   return in;
 }
 

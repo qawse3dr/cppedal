@@ -11,17 +11,47 @@
 
 #include "mcp3002.hpp"
 
+#include <wiringPi.h>
+#include <wiringPiSPI.h>
+
 #include <cstdlib>
 
 using cppedal::ingestor::Ingestor;
-using cppedal::ingestor::mcp3002;
 using cppedal::ingestor::MCP3002Ingestor;
 
-MCP3002Ingestor::MCP3002Ingestor() : adc() {}
+static int myAnalogRead(struct wiringPiNodeStruct *node, int pin) {
+  unsigned char spiData[2];
+  unsigned char chanBits;
+  int chan = pin - node->pinBase;
+
+  if (chan == 0)
+    chanBits = 0b11010000;
+  else
+    chanBits = 0b11110000;
+
+  spiData[0] = chanBits;
+  spiData[1] = 0;
+
+  wiringPiSPIDataRW(node->fd, spiData, 2);
+
+  return (spiData[1] | ((spiData[0] & 0x0F) << 8));
+}
+
+#define CPPEDAL_BASE_BIN 80
+MCP3002Ingestor::MCP3002Ingestor() {
+  struct wiringPiNodeStruct *node;
+
+  if (wiringPiSetup() || wiringPiSPISetup(0, 2000000) < 0) exit(-1);
+
+  node = wiringPiNewNode(CPPEDAL_BASE_BIN, 2);
+
+  node->fd = 0;
+  node->analogRead = myAnalogRead;
+}
 
 MCP3002Ingestor::~MCP3002Ingestor() {}
 
-uint32_t MCP3002Ingestor::ingest() { return adc.read(); }
+uint32_t MCP3002Ingestor::ingest() { return analogRead(CPPEDAL_BASE_BIN); }
 
 extern "C" {
 std::unique_ptr<Ingestor> makeIngestor() {

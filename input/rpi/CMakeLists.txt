@@ -7,3 +7,18 @@
 #
 # @author: qawse3dr a.k.a Larry Milne
 #
+
+add_library( 
+  cppedal-input-rpi
+  SHARED
+  rpi_push_button.cpp
+  rpi_rotary_encoder.cpp
+
+)
+
+target_link_libraries(
+  cppedal-input-rpi
+  PUBLIC
+  cppedal-input
+  wiringPi
+)

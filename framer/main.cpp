@@ -9,20 +9,31 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
+#include <signal.h>
+
 #include <chrono>
 #include <iostream>
-#include <thread>
 
 #include "framer.hpp"
 
 int main(int argc, char *argv[]) {
+  sigset_t sigset;
+  sigaddset(&sigset, SIGTERM);
+  sigaddset(&sigset, SIGINT);
+
+  pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
+
   std::cout << "Larrycloud CPPEDAL" << std::endl;
 
   cppedal::framer::Framer framer("../cppedal.json");
 
   framer.start();
 
-  std::this_thread::sleep_for(std::chrono::seconds(60));
-
+  while (true) {
+    int sig = sigwaitinfo(&sigset, nullptr);
+    if (sigismember(&sigset, sig)) {
+      break;
+    }
+  }
   framer.stop();
 }

@@ -45,6 +45,9 @@ Framer::Framer(const std::string& cfg_path) {
     if (failed) break;
 
     // Setup input
+    if (!setupInputs()) {
+      break;
+    }
 
     // setup effect configs
     if (!setupEffects()) {
@@ -117,7 +120,9 @@ bool Framer::parseConfig(const std::string cfg_path) {
   }
 
   // // input info
-  // parseInputInfo(j);
+  if (!parseInputInfo(j)) {
+    return false;
+  }
 
   // effects
   if (!parseEffectInfo(j)) {
@@ -169,6 +174,16 @@ std::string Framer::dumpCfg() const {
       ss << " (" << i.first << ", " << i.second << "), ";
     }
     ss << "]}" << std::endl;
+  }
+
+  ss << "PUSH_BUTTON" << std::endl;
+  for (const auto& button : cfg_.push_button_info) {
+    ss << "{" << button.name << ", " << button.pin << "}" << std::endl;
+  }
+  ss << "Rotary_encoder" << std::endl;
+  for (const auto& encoder : cfg_.rotary_encoder_info) {
+    ss << "{" << encoder.name << ", " << encoder.clk << ", " << encoder.data
+       << "}" << std::endl;
   }
   ss << "prev_butt:  " << cfg_.prev_effect_button << std::endl
      << "next_butt:  " << cfg_.next_effect_button << std::endl
@@ -301,6 +316,43 @@ bool Framer::parseEffectInfo(const nlohmann::json& j) {
   return true;
 }
 
+bool Framer::parseInputInfo(const nlohmann::json& j) {
+  auto input_array_it = j.find("inputs");
+  if (input_array_it == j.end()) {
+    std::cerr << "Failed to find inputs" << std::endl;
+    return false;
+  }
+  // Make sure it is an array
+  if (!input_array_it.value().is_array()) {
+    std::cerr << "inputs must be an array" << std::endl;
+    return false;
+  }
+
+  int i = 0;
+  for (const auto& input : input_array_it.value()) {
+    i++;
+    if (input["type"].get<std::string>() == "push_button") {
+      FramerConfig::PushButtonInfo info;
+      info.name = input["name"].get<std::string>();
+      info.pin = input["type_data"]["input_gpio"].get<int>();
+      cfg_.push_button_info.emplace_back(std::move(info));
+      // TODO add pull_up
+    } else if (input["type"].get<std::string>() == "rotary_encoder") {
+      FramerConfig::RotaryEncoderInfo info;
+      info.name = input["name"].get<std::string>();
+      info.clk = input["type_data"]["clk_gpio"].get<int>();
+      info.data = input["type_data"]["data_gpio"].get<int>();
+      cfg_.rotary_encoder_info.emplace_back(std::move(info));
+    } else {
+      // TODO make error better
+      std::cerr << "Type doesn't exist on " << i << std::endl;
+      return false;
+    }
+    // TODO error checking
+  }
+  return true;
+}
+
 bool Framer::loadIngst() {
   cfg_.ingestor.handler = dlopen(cfg_.ingestor.path.c_str(), RTLD_NOW);
   if (!cfg_.ingestor.handler) {
@@ -341,7 +393,26 @@ bool Framer::loadOutput() {
   return true;
 }
 
-bool Framer::loadInput() { return true; }
+bool Framer::loadInput() {
+  cfg_.input_library.handler =
+      dlopen(cfg_.input_library.path.c_str(), RTLD_NOW);
+  if (!cfg_.input_library.handler) {
+    std::cerr << "Failed to open input_lib" << cfg_.input_library.name << " at "
+              << cfg_.input_library.path << " with " << dlerror();
+    return false;
+  }
+
+  makePushButton = reinterpret_cast<makePushButtonFtn>(
+      dlsym(cfg_.input_library.handler, CPPEDAL_MAKE_PUSH_BUTTON_NAME));
+  if (!makePushButton) {
+    std::cerr << "Failed to find input_library "
+              << CPPEDAL_MAKE_PUSH_BUTTON_NAME << " in "
+              << cfg_.input_library.name << std::endl;
+    return false;
+  }
+  // TODO ADD rotary dial lib
+  return true;
+}
 bool Framer::loadLCD() { return true; }
 
 bool Framer::loadEffectLib(FramerConfig::LibraryInfo& effect) {
@@ -384,6 +455,19 @@ bool Framer::setupEffects() {
     }
     effects_.emplace_back(info.name, std::move(effects));
   }
+  return true;
+}
+
+bool Framer::setupInputs() {
+  for (auto& button : cfg_.push_button_info) {
+    input_map_.emplace(button.name, makePushButton(button.pin));
+  }
+
+  // TODO setup effect input
+  input_map_[cfg_.prev_effect_button]->setCallback(
+      std::bind(&Framer::prevEvent, this, std::placeholders::_1));
+  input_map_[cfg_.next_effect_button]->setCallback(
+      std::bind(&Framer::nextEvent, this, std::placeholders::_1));
   return true;
 }
 

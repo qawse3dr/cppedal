@@ -17,7 +17,7 @@ add_library(
 target_link_libraries(
   cppedal-ingestor-mcp3002
   PUBLIC
-  #wiringPi # WHY YOU NOT WORK
-  spidev-lib++ # you for now
+  wiringPi # WHY YOU NOT WORK
+  #spidev-lib++ # you for now
   ingestor
 )

@@ -22,6 +22,7 @@
 #include <cppedal/effect/effect_library.hpp>
 #include <cppedal/ingestor/ingestor.hpp>
 #include <cppedal/input/input.hpp>
+#include <cppedal/input/push_button.hpp>
 #include <cppedal/pwm_output/pwm_output.hpp>
 
 #include "effect_container.hpp"
@@ -35,10 +36,14 @@ struct FramerConfig {
     void* handler = nullptr;
   };
 
-  struct InputInfo {
+  struct PushButtonInfo {
     std::string name;
-    cppedal::input::InputTypes type;
-    const nlohmann::json input_data;
+    int pin;
+  };
+  struct RotaryEncoderInfo {
+    std::string name;
+    int clk;
+    int data;
   };
 
   struct EffectInfo {
@@ -56,7 +61,8 @@ struct FramerConfig {
   std::vector<LibraryInfo> effects_libraries;
 
   // Inputs
-  std::vector<InputInfo> input_info;
+  std::vector<PushButtonInfo> push_button_info;
+  std::vector<RotaryEncoderInfo> rotary_encoder_info;
 
   std::vector<EffectInfo> effects_info;
 
@@ -82,6 +88,7 @@ class Framer {
   std::map<std::string, std::shared_ptr<cppedal::effects::EffectLibrary>>
       effect_library_map_ = {};
 
+  std::map<std::string, std::unique_ptr<cppedal::input::Input>> input_map_ = {};
   std::vector<EffectContainer> effects_ = {};
   std::vector<EffectContainer>::iterator cur_effect_ = {};
   std::mutex effect_mutex_ = {};
@@ -95,6 +102,7 @@ class Framer {
                         FramerConfig::LibraryInfo& info);
   bool parseEffectLibs(const nlohmann::json& j);
   bool parseEffectInfo(const nlohmann::json& j);
+  bool parseInputInfo(const nlohmann::json& j);
 
   // Load methods
   bool loadIngst();
@@ -105,10 +113,29 @@ class Framer {
 
   // Sets up all of the effects mapping them to actual libs and inputs
   bool setupEffects();
+  bool setupInputs();
 
   std::thread work_thread_;
   bool running_ = false;
   void workLoop();
+
+  // callbacks
+  void prevEvent(int64_t pressed) {
+    if (pressed == 0 && cur_effect_ != effects_.begin()) {
+      std::cout << "prevEvent" << std::endl;
+      std::lock_guard<std::mutex> lk(effect_mutex_);
+      cur_effect_--;
+    }
+  }
+  void nextEvent(int64_t pressed) {
+    if (pressed == 0 && cur_effect_ != effects_.end() - 1) {
+      std::lock_guard<std::mutex> lk(effect_mutex_);
+      cur_effect_++;
+    }
+  }
+
+  // Ftns to create Inputs
+  makePushButtonFtn makePushButton = nullptr;
 
  public:
   explicit Framer(const std::string& cfg_path);

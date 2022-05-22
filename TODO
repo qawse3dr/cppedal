@@ -58,15 +58,8 @@ dial 3 -  5        4       6
 
 
 #REACT TODO LIST
-- create all header files (ingestor, pwm-ouput, lcd, inputs (maybe do seperately))
-  - effect - done 
-  - ingestor - done
-  - pwm-output
-  - lcd
-  - inputs
-- create framer
-  - create effect_container
-- create ingestor
-- create pwm
-- create lcd
-- create 
+- Create input
+- Create lcd
+- if I get time make spidev++ ingestor showing how we can have multiple ingestors
+- create more effects
+- map inputs to effects
