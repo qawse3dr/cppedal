@@ -57,9 +57,11 @@ class EffectLibrary {
    */
   virtual inline bool setInput(const std::string &, int) {
     // By default do nothing
-    std::cerr << "SetInput is not implemented for this effect ignoring"
-              << std::endl;
     return false;
+  }
+
+  virtual inline void reset() {
+    // Do nonthing
   }
 };
 

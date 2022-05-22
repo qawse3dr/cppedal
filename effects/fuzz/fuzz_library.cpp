@@ -9,14 +9,15 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include "dist_library.hpp"
-
-using cppedal::effects::DistEffectLibrary;
-using cppedal::effects::EffectLibrary;
+#include "fuzz_library.hpp"
 
 // Logic adapted from
 // https://www.electrosmash.com/forum/pedal-pi/202-how-to-start-programming-pedal-pi?lang=en
-uint32_t DistEffectLibrary::process(uint32_t in) {
+
+using cppedal::effects::EffectLibrary;
+using cppedal::effects::FuzzEffectLibrary;
+
+uint32_t FuzzEffectLibrary::process(uint32_t in) {
   // Clip the signal to make it distorted
   // get samples for dist for the first 1000 samples
   if (count_ < 1000) {
@@ -24,15 +25,14 @@ uint32_t DistEffectLibrary::process(uint32_t in) {
     count_++;
     mean_ = sum_ / count_;
   }
-  if (in > mean_ + distortion_value) in = mean_ + distortion_value;
-  if (in < mean_ - distortion_value) in = mean_ - distortion_value;
+  if (in > mean_ + fuzz_value) in = 2048;
+  if (in < mean_ - fuzz_value) in = 0;
   return in;
 }
 
-bool DistEffectLibrary::setInput(const std::string& key, int value) {
-  // Implement "dist"
-  if (key == "dist_level") {
-    distortion_value = 150 - value * 4;
+bool FuzzEffectLibrary::setInput(const std::string& key, int value) {
+  if (key == "fuzz_level") {
+    fuzz_value = 150 - value * 4;
   }
 
   return true;
@@ -40,6 +40,6 @@ bool DistEffectLibrary::setInput(const std::string& key, int value) {
 
 extern "C" {
 std::shared_ptr<EffectLibrary> makeEffectLibrary() {
-  return std::unique_ptr<EffectLibrary>(new DistEffectLibrary);
+  return std::unique_ptr<EffectLibrary>(new FuzzEffectLibrary);
 }
 }

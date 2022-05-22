@@ -16,23 +16,23 @@
 
 namespace cppedal::effects {
 
-class DistEffectLibrary : public EffectLibrary {
+class FuzzEffectLibrary : public EffectLibrary {
  private:
-  uint32_t distortion_value = 150;
+  uint32_t fuzz_value = 150;
   uint64_t sum_ = 0;
   uint64_t count_ = 0;
   uint64_t mean_ = 0;
 
  public:
-  DistEffectLibrary() = default;
-  ~DistEffectLibrary() = default;
+  FuzzEffectLibrary() = default;
+  ~FuzzEffectLibrary() = default;
   uint32_t process(uint32_t in) override;
   bool setInput(const std::string &, int) override;
   void reset() override {
     sum_ = 0;
     count_ = 0;
     mean_ = 0;
-    distortion_value = 150;
+    fuzz_value = 150;
   }
 };
 

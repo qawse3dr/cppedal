@@ -17,7 +17,7 @@ namespace cppedal::lcd {
 class LCD {
  public:
   LCD() = default;
-  ~LCD() = default;
+  virtual ~LCD(){};
   virtual void print(const std::string& str, int line, int pos) = 0;
   virtual void clear() = 0;
 };

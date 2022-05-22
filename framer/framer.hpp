@@ -11,9 +11,11 @@
 #pragma once
 
 #include <json.hpp>
+#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -28,51 +30,9 @@
 #include <cppedal/pwm_output/pwm_output.hpp>
 
 #include "effect_container.hpp"
+#include "framer_config.hpp"
 
 namespace cppedal::framer {
-
-struct FramerConfig {
-  struct LibraryInfo {
-    std::string name;
-    std::string path;
-    void* handler = nullptr;
-  };
-
-  struct PushButtonInfo {
-    std::string name;
-    int pin;
-    bool pull_up;
-  };
-  struct RotaryEncoderInfo {
-    std::string name;
-    int clk;
-    int data;
-    bool pull_up;
-  };
-
-  struct EffectInfo {
-    std::string name;
-    std::vector<std::string> effect_libraries;
-    std::vector<std::pair<std::string, std::string>> input_mapping;
-  };
-
-  // Libraries
-  LibraryInfo ingestor;
-  LibraryInfo pwm_output;
-  LibraryInfo lcd;
-  LibraryInfo input_library;
-
-  std::vector<LibraryInfo> effects_libraries;
-
-  // Inputs
-  std::vector<PushButtonInfo> push_button_info;
-  std::vector<RotaryEncoderInfo> rotary_encoder_info;
-
-  std::vector<EffectInfo> effects_info;
-
-  std::string prev_effect_button;
-  std::string next_effect_button;
-};
 
 /**
  * @brief This class will hold the whole project together

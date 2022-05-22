@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 
+#include "framer_config.hpp"
 namespace cppedal::framer {
 
 class EffectContainer {
@@ -27,14 +28,14 @@ class EffectContainer {
   std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>> effects_ = {};
 
  public:
-  std::vector<std::pair<std::string, std::string>> inputs_ = {};
+  std::vector<FramerConfig::EffectInputInfo> inputs_ = {};
   static cppedal::lcd::LCD* lcd_;
 
  public:
   EffectContainer(
       const std::string& name,
       std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>>&& effects,
-      std::vector<std::pair<std::string, std::string>>&& input);
+      std::vector<FramerConfig::EffectInputInfo>&& input);
   ~EffectContainer() = default;
 
   /**
@@ -47,7 +48,11 @@ class EffectContainer {
 
   void setInput(const std::string& key, int value) {
     if (lcd_) {
-      lcd_->print(key + " " + std::to_string(value), 1, 0);
+      // This is a bad way to do it but running out of time
+      // TODO make this better
+      std::string str = key + " " + std::to_string(value);
+      while (str.length() < 15) str += " ";
+      lcd_->print(str, 1, 0);
     }
     for (const auto& effect : effects_) {
       effect->setInput(key, value);
@@ -60,6 +65,12 @@ class EffectContainer {
   }
 
   const std::string& getName() { return name_; }
+
+  void reset() {
+    for (const auto& effect : effects_) {
+      effect->reset();
+    }
+  }
 };
 
 }  // namespace cppedal::framer

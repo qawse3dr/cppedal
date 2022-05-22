@@ -31,7 +31,16 @@
     {
       "name": "dist",
       "path": "lib/effects/libcppedal-effect-dist.so"
+    },
+    {
+      "name" : "boost",
+      "path" : "lib/effects/libcppedal-effect-boost.so"
+    },
+    {
+      "name" : "fuzz",
+      "path" : "lib/effects/libcppedal-effect-fuzz.so"
     }
+    
   ],
   "inputs" : [
     // PUSH BUTTONS
@@ -92,17 +101,61 @@
 
   "effects": [
     {
-      "name": "clean",
+      "name": "Clean",
       "effects": ["clean"],
       "inputs": [] // No inputs for clean
     },
     {
-      "name": "dist",
+      "name": "Distortion",
       "effects": ["dist"],
       "inputs": [
         {
           "name": "dist_level",
-          "input": "rotary_right"
+          "input": "rotary_right",
+          "min": -30,
+          "max": 30,
+          "init": 5
+        }
+      ]
+    },
+    {
+      "name": "Boost & Fuzz",
+      "effects": ["fuzz", "boost"],
+      "inputs": [
+        {
+          "name": "fuzz_level",
+          "input": "rotary_right",
+          "min": -30,
+          "max": 30,
+          "init": 5
+        },
+        {
+          "name": "boost_level",
+          "input": "rotary_middle",
+          "min": -20,
+          "max": 20,
+          "init": 0
+        },
+        {
+          "name": "boost_on", 
+          "input": "push_middle"
+        }
+      ]
+    },
+    {
+      "name": "Clean Boost",
+      "effects": ["clean", "boost"],
+      "inputs": [
+        {
+          "name": "boost_level",
+          "input": "rotary_middle",
+          "min": -20,
+          "max": 20,
+          "init": -5
+        },
+        {
+          "name": "boost_on", 
+          "input": "push_middle"
         }
       ]
     }

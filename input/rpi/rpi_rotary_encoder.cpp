@@ -55,9 +55,13 @@ void RpiRotaryEncoder::workLoop() {
       bool other = digitalRead(data_pin_);
 
       if (state == other) {
-        value_--;
+        if (value_ > min_) {
+          value_--;
+        }
       } else {
-        value_++;
+        if (value_ < max_) {
+          value_++;
+        }
       }
       if (callback_) callback_(value_);
     }

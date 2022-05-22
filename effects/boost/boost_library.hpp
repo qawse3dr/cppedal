@@ -16,23 +16,19 @@
 
 namespace cppedal::effects {
 
-class DistEffectLibrary : public EffectLibrary {
+class BoostEffectLibrary : public EffectLibrary {
  private:
-  uint32_t distortion_value = 150;
-  uint64_t sum_ = 0;
-  uint64_t count_ = 0;
-  uint64_t mean_ = 0;
+  float booster_value = 0.5;
+  bool activated = true;
 
  public:
-  DistEffectLibrary() = default;
-  ~DistEffectLibrary() = default;
+  BoostEffectLibrary() = default;
+  ~BoostEffectLibrary() = default;
   uint32_t process(uint32_t in) override;
   bool setInput(const std::string &, int) override;
   void reset() override {
-    sum_ = 0;
-    count_ = 0;
-    mean_ = 0;
-    distortion_value = 150;
+    booster_value = 0.5;
+    activated = true;
   }
 };
 

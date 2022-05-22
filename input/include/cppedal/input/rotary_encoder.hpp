@@ -36,6 +36,10 @@ class RotaryEncoder : public Input {
         pull_up_(pull_up) {}
   ~RotaryEncoder() = default;
   int64_t getValue() { return value_; }
+  void setValue(int64_t value) {
+    value_ = value;
+    if (callback_) callback_(value_);
+  }
   void reset() {
     value_ = 0;
     max_ = std::numeric_limits<int64_t>::max();

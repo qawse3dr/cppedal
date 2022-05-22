@@ -33,7 +33,7 @@ deploy:
 	echo "TODO"
 
 run: build
-	cd build; sudo ./bin/cppedal
+	cd build; sudo ./bin/cppedal ../cppedal.json
 
 run-no-build:
 	cd build; sudo ./bin/cppedal

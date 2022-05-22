@@ -12,6 +12,7 @@
 #include "framer.hpp"
 
 #include <dlfcn.h>
+#include <unistd.h>
 
 #include <fstream>
 #include <iostream>
@@ -173,7 +174,8 @@ std::string Framer::dumpCfg() const {
     }
     ss << "], inputs: [";
     for (auto& i : effect.input_mapping) {
-      ss << " (" << i.first << ", " << i.second << "), ";
+      ss << " (" << i.target << ", " << i.key << ", max: " << i.max
+         << ", min: " << i.min << "), ";
     }
     ss << "]}" << std::endl;
   }
@@ -317,8 +319,20 @@ bool Framer::parseEffectInfo(const nlohmann::json& j) {
                   << std::endl;
         return false;
       }
-      info.input_mapping.emplace_back(input["name"].get<std::string>(),
-                                      input["input"].get<std::string>());
+      FramerConfig::EffectInputInfo input_info;
+      input_info.target = input["input"].get<std::string>();
+      input_info.key = input["name"].get<std::string>();
+
+      if (input.find("max") != input.end()) {
+        input_info.max = input["max"].get<int>();
+      }
+      if (input.find("min") != input.end()) {
+        input_info.min = input["min"].get<int>();
+      }
+      if (input.find("init") != input.end()) {
+        input_info.start = input["init"].get<int>();
+      }
+      info.input_mapping.emplace_back(std::move(input_info));
     }
 
     cfg_.effects_info.emplace_back(std::move(info));
@@ -481,7 +495,7 @@ bool Framer::setupEffects() {
   for (const auto& info : cfg_.effects_info) {
     // TODO input
     std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>> effects;
-    std::vector<std::pair<std::string, std::string>> inputs;
+    std::vector<FramerConfig::EffectInputInfo> inputs;
 
     for (auto& lib : info.effect_libraries) {
       auto lib_it = effect_library_map_.find(lib);
@@ -494,9 +508,9 @@ bool Framer::setupEffects() {
     }
 
     for (auto& input : info.input_mapping) {
-      auto input_it = input_map_.find(input.second);
+      auto input_it = input_map_.find(input.target);
       if (input_it == input_map_.end()) {
-        std::cerr << "failed to find input" << input.first << " for "
+        std::cerr << "failed to find input " << input.target << " for "
                   << info.name << std::endl;
         return false;
       }
@@ -531,12 +545,21 @@ bool Framer::setupInputCallbacks() {
   for (const auto& input : input_map_) {
     input.second->setCallback(nullptr);
   }
+  (*cur_effect_)->reset();
   for (const auto& input : (*cur_effect_)->inputs_) {
-    input_map_[input.second]->setCallback(
-        (*cur_effect_)->getCallback(input.first));
-    reinterpret_cast<cppedal::input::RotaryEncoder*>(
-        input_map_[input.second].get())
-        ->reset();
+    input_map_[input.target]->setCallback(
+        (*cur_effect_)->getCallback(input.key));
+    if (input_map_[input.target]->getInputType() ==
+        cppedal::input::InputTypes::kRotaryEncoder) {
+      auto& encoder = reinterpret_cast<cppedal::input::RotaryEncoder&>(
+          *input_map_[input.target].get());
+      encoder.reset();
+
+      // set max and min
+      encoder.setMax(input.max);
+      encoder.setMin(input.min);
+      encoder.setValue(input.start);
+    }
   }
 
   input_map_[cfg_.prev_effect_button]->setCallback(
@@ -567,6 +590,11 @@ void Framer::stop() {
   }
 }
 Framer::~Framer() {
+  lcd_->clear();
+  lcd_->print("THANK YOU", 0, 3);
+  lcd_->print("BYE", 1, 6);
+  usleep(2000000);
+
   // we have to delete all pointers before libraries
   ingst_.reset();
   output_.reset();

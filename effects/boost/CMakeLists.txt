@@ -8,19 +8,15 @@
 # @author: qawse3dr a.k.a Larry Milne
 #
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/effects)
-
-# Effects
-add_subdirectory(clean)
-add_subdirectory(dist)
-add_subdirectory(boost)
-add_subdirectory(fuzz)
-
-add_library(cppedal-effects INTERFACE)
-
-target_include_directories(
-  cppedal-effects
-  INTERFACE
-  include/
+add_library(
+  cppedal-effect-boost
+  SHARED
+  boost_library.cpp
 )
 
+
+target_link_libraries(
+  cppedal-effect-boost
+  PUBLIC
+  cppedal-effects
+)

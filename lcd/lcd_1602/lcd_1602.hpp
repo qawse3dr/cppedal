@@ -52,6 +52,9 @@ class LCD1602 : public LCD {
   LCD1602();
   ~LCD1602();
   void print(const std::string& str, int line, int pos) override;
-  void clear() override { clear_ = true; };
+  void clear() override {
+    clear_ = true;
+    cv_.notify_one();
+  };
 };
 }  // namespace cppedal::lcd

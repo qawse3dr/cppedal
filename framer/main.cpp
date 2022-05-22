@@ -25,7 +25,11 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Larrycloud CPPEDAL" << std::endl;
 
-  cppedal::framer::Framer framer("../cppedal.json");
+  if (argc != 2) {
+    std::cerr << "Please pass config as first argument" << std::endl;
+    return -1;
+  }
+  cppedal::framer::Framer framer(argv[1]);
 
   framer.start();
 
