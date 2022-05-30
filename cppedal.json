@@ -39,6 +39,19 @@
     {
       "name" : "fuzz",
       "path" : "lib/effects/libcppedal-effect-fuzz.so"
+    },
+    {
+      "name" : "bit_cruncher",
+      "path" : "lib/effects/libcppedal-effect-bit-cruncher.so"
+    }
+    ,
+    {
+      "name" : "delay",
+      "path" : "lib/effects/libcppedal-effect-delay.so"
+    },
+    {
+      "name" : "octaver",
+      "path" : "lib/effects/libcppedal-effect-octaver.so"
     }
     
   ],
@@ -111,7 +124,7 @@
       "inputs": [
         {
           "name": "dist_level",
-          "input": "rotary_right",
+          "input": "rotary_left",
           "min": -30,
           "max": 30,
           "init": 5
@@ -155,6 +168,39 @@
         },
         {
           "name": "boost_on", 
+          "input": "push_middle"
+        }
+      ]
+    }, 
+    {
+      "name": "Bit Cruncher",
+      "effects": ["bit_cruncher"],
+      "inputs": [
+        {
+          "name": "bit_value",
+          "input": "push_middle"
+        }
+      ]
+    },
+    {
+      "name": "Delay",
+      "effects": ["delay"],
+      "inputs": [
+        {
+          "name": "delay_depth",
+          "input": "rotary_left",
+          "min": 0,
+          "max": 100,
+          "init": 50
+        }
+      ]
+    },
+    {
+      "name": "Octaver",
+      "effects": ["octaver"],
+      "inputs": [
+        {
+          "name": "octaver",
           "input": "push_middle"
         }
       ]

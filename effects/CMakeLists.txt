@@ -11,10 +11,13 @@
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/effects)
 
 # Effects
+add_subdirectory(bitcruncher)
 add_subdirectory(clean)
 add_subdirectory(dist)
 add_subdirectory(boost)
 add_subdirectory(fuzz)
+add_subdirectory(delay)
+add_subdirectory(octaver)
 
 add_library(cppedal-effects INTERFACE)
 

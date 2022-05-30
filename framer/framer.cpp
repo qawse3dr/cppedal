@@ -14,6 +14,8 @@
 #include <dlfcn.h>
 #include <unistd.h>
 
+#include <chrono>
+#include <condition_variable>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -66,8 +68,18 @@ Framer::Framer(const std::string& cfg_path) {
 }
 
 void Framer::workLoop() {
+  int policy;
+  struct sched_param param;
+
+  pthread_getschedparam(pthread_self(), &policy, &param);
+  param.sched_priority = sched_get_priority_max(policy);
+  pthread_setschedparam(pthread_self(), policy, &param);
+
+  std::condition_variable cv;
+  std::mutex mutex;
   uint32_t input;
   while (running_) {
+    auto time = std::chrono::steady_clock::now();
     // Get input from ingestor
     input = ingst_->ingest();
 
@@ -79,6 +91,13 @@ void Framer::workLoop() {
 
     // output to pwm
     output_->output(input);
+
+    auto ts = time + std::chrono::nanoseconds(200000);
+    if (ts < std::chrono::steady_clock::now()) {
+      std::unique_lock<std::mutex> lk(mutex);
+
+      cv.wait_until(lk, ts);
+    }
   }
 }
 

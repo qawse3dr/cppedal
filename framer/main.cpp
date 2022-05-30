@@ -23,6 +23,12 @@ int main(int argc, char *argv[]) {
 
   pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
 
+  int policy;
+  struct sched_param param;
+
+  pthread_getschedparam(pthread_self(), &policy, &param);
+  param.sched_priority = sched_get_priority_max(policy);
+  pthread_setschedparam(pthread_self(), policy, &param);
   std::cout << "Larrycloud CPPEDAL" << std::endl;
 
   if (argc != 2) {

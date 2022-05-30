@@ -41,7 +41,7 @@ static int myAnalogRead(struct wiringPiNodeStruct *node, int pin) {
 MCP3002Ingestor::MCP3002Ingestor() {
   struct wiringPiNodeStruct *node;
 
-  if (wiringPiSetup() || wiringPiSPISetup(0, 2000000) < 0) exit(-1);
+  if (wiringPiSetup() || wiringPiSPISetup(0, 1000000) < 0) exit(-1);
 
   node = wiringPiNewNode(CPPEDAL_BASE_BIN, 2);
 
