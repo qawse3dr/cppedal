@@ -8,15 +8,19 @@
 # @author: qawse3dr a.k.a Larry Milne
 #
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/pwm-output)
-
-
-add_subdirectory(rpi-single)
-add_subdirectory(rpizero-single)
-
-add_library(pwm-output INTERFACE)
-target_include_directories(
-  pwm-output 
-  INTERFACE
-  include/
+add_library( 
+  cppedal-pwm-output-rpizero-single
+  SHARED
+  rpizero-single.cpp
 )
+
+target_link_libraries(
+  cppedal-pwm-output-rpizero-single
+  PUBLIC
+  pwm-output
+  pigpio
+  pthread
+  rt 
+)
+
+

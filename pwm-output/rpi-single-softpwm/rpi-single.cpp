@@ -24,16 +24,13 @@ RpiSinglePwmOutput::RpiSinglePwmOutput() {
     exit(1);
   }
   pinMode(1, PWM_OUTPUT);
-  pwmSetRange(1024);
+  pwmSetRange(2048);
   pwmSetClock(1);
-  pwmSetMode(0);
-
+  pwmSetMode(PWM_MODE_MS);
 }
 RpiSinglePwmOutput::~RpiSinglePwmOutput() {}
 
-void RpiSinglePwmOutput::output(uint32_t out) { 
-pwmWrite(1, (out/2));
-}
+void RpiSinglePwmOutput::output(uint32_t out) { pwmWrite(1, out); }
 
 extern "C" {
 std::unique_ptr<PwmOutput> makePwmOutput() {

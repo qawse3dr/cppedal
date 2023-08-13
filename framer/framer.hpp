@@ -89,14 +89,14 @@ class Framer {
 
   // callbacks
   void prevEvent(int64_t pressed) {
-    if (pressed == 0 && cur_effect_ != effects_.begin()) {
+    if (pressed == 1 && cur_effect_ != effects_.begin()) {
       std::lock_guard<std::mutex> lk(effect_mutex_);
       cur_effect_--;
       setupInputCallbacks();
     }
   }
   void nextEvent(int64_t pressed) {
-    if (pressed == 0 && cur_effect_ != effects_.end() - 1) {
+    if (pressed == 1 && cur_effect_ != effects_.end() - 1) {
       std::lock_guard<std::mutex> lk(effect_mutex_);
       cur_effect_++;
       setupInputCallbacks();

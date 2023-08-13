@@ -11,24 +11,25 @@
 
 all: build
 
+THEAD_COUNT=1
 
 init:
 	mkdir -p build; cd build; cmake ..
 
 build: init
-	cd build; make -j12
+	cd build; make -j${THREAD_COUNT}
 
 build-framer: init
-	cd build; make -j12 framer
+	cd build; make -j${THREAD_COUNT} framer
 
 build-effect: init
-	cd build; make -j12 effect
+	cd build; make -j${THREAD_COUNT} effect
 
 build-ingestor: init
-	cd build; make -j12 mcp6002-ingestor
+	cd build; make -j${THREAD_COUNT} mcp6002-ingestor
 
 build-pwm: init
-	cd build; make -j12 rpi4-pwm-output
+	cd build; make -j${THREAD_COUNT} rpi4-pwm-output
 deploy:
 	echo "TODO"
 

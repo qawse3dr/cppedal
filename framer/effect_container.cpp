@@ -22,11 +22,8 @@ EffectContainer::EffectContainer(
     std::vector<FramerConfig::EffectInputInfo>&& input)
     : name_(name), effects_(std::move(effect)), inputs_(std::move(input)) {}
 uint32_t EffectContainer::process(uint32_t in) {
-  // std::cout << "in" << in << std::endl;
   for (const auto& effect : effects_) {
     in = effect->process(in);
   }
-  // std::cout << "out" << in << std::endl;
-
   return in;
 }

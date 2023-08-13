@@ -92,7 +92,7 @@ void Framer::workLoop() {
     // output to pwm
     output_->output(input);
 
-    auto ts = time + std::chrono::nanoseconds(200000);
+    auto ts = time + std::chrono::nanoseconds(20000);
     if (ts < std::chrono::steady_clock::now()) {
       std::unique_lock<std::mutex> lk(mutex);
 
@@ -512,7 +512,6 @@ bool Framer::loadEffectLib(FramerConfig::LibraryInfo& effect) {
 
 bool Framer::setupEffects() {
   for (const auto& info : cfg_.effects_info) {
-    // TODO input
     std::vector<std::shared_ptr<cppedal::effects::EffectLibrary>> effects;
     std::vector<FramerConfig::EffectInputInfo> inputs;
 

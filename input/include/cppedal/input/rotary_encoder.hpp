@@ -36,7 +36,7 @@ class RotaryEncoder : public Input {
         pull_up_(pull_up) {}
   ~RotaryEncoder() = default;
   int64_t getValue() { return value_; }
-  void setValue(int64_t value) {
+  inline void setValue(int64_t value) {
     value_ = value;
     if (callback_) callback_(value_);
   }
